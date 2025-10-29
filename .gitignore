@@ -6,6 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+# Build artifacts
+test_opm
+test_opm.exe
+test_opm_gcc
+*.o
+*.obj
+
 # Distribution / packaging
 .Python
 build/
