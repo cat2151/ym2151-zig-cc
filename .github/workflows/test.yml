@@ -1,0 +1,63 @@
+name: Test Nuked-OPM with Zig CC
+
+on:
+  push:
+    branches: [ main, 'copilot/**' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+      
+      - name: Verify Zig installation
+        run: |
+          zig version
+          zig cc --version
+      
+      - name: Build with zig cc
+        run: |
+          zig cc -o test_opm test_opm.c opm.c -lm
+      
+      - name: Run test
+        run: |
+          ./test_opm
+      
+      - name: Display test results
+        if: always()
+        run: |
+          echo "Test completed"
+
+  build-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+      
+      - name: Verify Zig installation
+        run: |
+          zig version
+          zig cc --version
+      
+      - name: Build for Windows with zig cc
+        run: |
+          zig cc -target x86_64-windows -o test_opm.exe test_opm.c opm.c -lm
+      
+      - name: Upload Windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_opm-windows
+          path: test_opm.exe
+          retention-days: 7
