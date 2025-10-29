@@ -181,10 +181,11 @@ int main() {
     int non_zero_count = 0;
     
     for (int i = 0; i < TOTAL_SAMPLES * 2; i++) {
-        int32_t abs_val = abs(buffer[i]);
+        // Handle potential overflow for INT32_MIN
+        int64_t abs_val = (int64_t)(buffer[i] < 0 ? -(int64_t)buffer[i] : buffer[i]);
         sum_abs += abs_val;
         if (abs_val > max_abs) {
-            max_abs = abs_val;
+            max_abs = (int32_t)abs_val;
         }
         if (buffer[i] != 0) {
             non_zero_count++;
