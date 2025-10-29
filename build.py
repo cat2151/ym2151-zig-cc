@@ -97,6 +97,54 @@ def build_windows(cross_compile=False):
     return True
 
 
+def build_phase2_windows(cross_compile=False):
+    """Build phase2 WAV output program for Windows."""
+    print("\n" + "=" * 60)
+    if cross_compile:
+        print("Cross-compiling phase2 WAV output for Windows (from Linux)")
+    else:
+        print("Building phase2 WAV output for Windows")
+    print("=" * 60)
+    
+    if not check_zig():
+        return False
+    
+    if cross_compile:
+        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "wav_output.exe",
+               "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
+    else:
+        cmd = ["zig", "cc", "-o", "wav_output.exe",
+               "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
+    
+    if not run_command(cmd, "Building phase2 WAV output with zig cc"):
+        return False
+    
+    print("✅ Build successful: wav_output.exe")
+    return True
+
+
+def build_phase2_linux(use_zig=True):
+    """Build phase2 WAV output program for Linux."""
+    print("\n" + "=" * 60)
+    print("Building phase2 WAV output for Linux")
+    print("=" * 60)
+    
+    if use_zig:
+        if not check_zig():
+            return False
+        
+        cmd = ["zig", "cc", "-o", "wav_output", "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
+        if not run_command(cmd, "Building phase2 WAV output with zig cc"):
+            return False
+    else:
+        cmd = ["gcc", "-o", "wav_output", "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
+        if not run_command(cmd, "Building phase2 WAV output with gcc"):
+            return False
+    
+    print("✅ Build successful: wav_output")
+    return True
+
+
 def run_test():
     """Run the test program."""
     print("\n" + "=" * 60)
@@ -157,6 +205,21 @@ def main():
     elif command == "build-windows":
         success = build_windows(cross_compile=(system != "Windows"))
     
+    elif command == "build-phase2":
+        if system == "Windows":
+            success = build_phase2_windows(cross_compile=False)
+        else:
+            success = build_phase2_linux(use_zig=True)
+    
+    elif command == "build-phase2-gcc":
+        if system != "Linux":
+            print("❌ Error: gcc build only supported on Linux")
+            return 1
+        success = build_phase2_linux(use_zig=False)
+    
+    elif command == "build-phase2-windows":
+        success = build_phase2_windows(cross_compile=(system != "Windows"))
+    
     elif command == "test":
         success = run_test()
     
@@ -164,11 +227,14 @@ def main():
         print("Usage: python3 build.py [command]")
         print()
         print("Commands:")
-        print("  build          Build for current platform (default)")
-        print("  build-gcc      Build with gcc (Linux only)")
-        print("  build-windows  Build Windows executable (cross-compile if on Linux)")
-        print("  test           Run the test program")
-        print("  help           Show this help message")
+        print("  build                Build for current platform (default)")
+        print("  build-gcc            Build with gcc (Linux only)")
+        print("  build-windows        Build Windows executable (cross-compile if on Linux)")
+        print("  build-phase2         Build phase2 WAV output for current platform")
+        print("  build-phase2-gcc     Build phase2 WAV output with gcc (Linux only)")
+        print("  build-phase2-windows Build phase2 WAV output Windows executable (cross-compile if on Linux)")
+        print("  test                 Run the test program")
+        print("  help                 Show this help message")
         return 0
     
     else:
