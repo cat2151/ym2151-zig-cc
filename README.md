@@ -14,6 +14,7 @@ Nuked-OPM を利用した 440Hz 3秒の音声レンダリングテストを zig 
 - ✅ zig cc を使用したクロスプラットフォームビルド（Linux、Windows）
 - ✅ GitHub Actions による自動テスト
 - ✅ バッファの非サイレント検証
+- ✅ WAVファイル出力機能（src/phase2/）
 
 ## クイックスタート
 
@@ -46,9 +47,27 @@ The audio buffer contains audio data.
   Max absolute value: 8080
 ```
 
+## WAVファイル出力（Phase2）
+
+440Hzの音を3秒間のWAVファイルとして出力するプログラムが `src/phase2/` に実装されています。
+
+```bash
+# ビルド
+python3 build.py build-phase2-gcc
+
+# 実行（output.wavを生成）
+./wav_output
+
+# カスタムファイル名で実行
+./wav_output my_sound.wav
+```
+
+詳細については、[src/phase2/README.md](src/phase2/README.md) を参照してください。
+
 ## ドキュメント
 
 - [BUILD.md](BUILD.md) - 詳細なビルド手順とトラブルシューティング
+- [src/phase2/README.md](src/phase2/README.md) - WAV出力プログラムの説明
 - [.github/workflows/test.yml](.github/workflows/test.yml) - CI/CD設定
 
 ## ライセンス
