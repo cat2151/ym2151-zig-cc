@@ -50,26 +50,6 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
 void configure_440hz_tone(opm_t *chip) {
     int32_t dummy_output[2] = {0, 0};
     
-    // Initialize chip with IC (Important: prevents silence!)
-    printf("  Setting IC=1...\n");
-    OPM_SetIC(chip, 1);
-    
-    // Delay 100ms for initialization
-    uint32_t init_cycles = MS_TO_CYCLES(INIT_DELAY_MS);
-    printf("  Clocking %u cycles (100ms)...\n", init_cycles);
-    for (uint32_t i = 0; i < init_cycles; i++) {
-        OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
-    }
-    
-    printf("  Setting IC=0...\n");
-    OPM_SetIC(chip, 0);
-    
-    // More init delay
-    printf("  Clocking %u cycles (100ms)...\n", init_cycles);
-    for (uint32_t i = 0; i < init_cycles; i++) {
-        OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
-    }
-    
     printf("  Writing registers...\n");
     
     int channel = 0;
