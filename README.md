@@ -15,6 +15,7 @@ Nuked-OPM を利用した 440Hz 3秒の音声レンダリングテストを zig 
 - ✅ GitHub Actions による自動テスト
 - ✅ バッファの非サイレント検証
 - ✅ WAVファイル出力機能（src/phase2/）
+- ✅ リアルタイム音声再生機能（src/phase3/）
 
 ## クイックスタート
 
@@ -64,13 +65,29 @@ python3 build.py build-phase2-gcc
 
 詳細については、[src/phase2/README.md](src/phase2/README.md) を参照してください。
 
+## リアルタイム音声再生（Phase3）
+
+440Hzの音を3秒間リアルタイムで再生するプログラムが `src/phase3/` に実装されています。MiniAudioを使用したdata_callbackベースのリアルタイム音声生成です。
+
+```bash
+# ビルド
+python3 build.py build-phase3-gcc
+
+# 実行（スピーカーから音が出ます）
+./real_time_audio
+```
+
+詳細については、[src/phase3/README.md](src/phase3/README.md) を参照してください。
+
 ## ドキュメント
 
 - [BUILD.md](BUILD.md) - 詳細なビルド手順とトラブルシューティング
 - [src/phase2/README.md](src/phase2/README.md) - WAV出力プログラムの説明
+- [src/phase3/README.md](src/phase3/README.md) - リアルタイム音声再生プログラムの説明
 - [.github/workflows/test.yml](.github/workflows/test.yml) - CI/CD設定
 
 ## ライセンス
 
 - このプロジェクト: MIT License
 - Nuked-OPM: LGPL 2.1
+- MiniAudio: Public Domain or MIT-0
