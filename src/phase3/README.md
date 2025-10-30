@@ -187,4 +187,4 @@ If you encounter build errors:
 
 - This program: MIT License
 - Nuked-OPM: LGPL 2.1
-- MiniAudio: Public Domain or MIT-0
+- MiniAudio: Public Domain OR MIT-0 (dual license)

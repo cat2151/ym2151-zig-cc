@@ -90,4 +90,4 @@ python3 build.py build-phase3-gcc
 
 - このプロジェクト: MIT License
 - Nuked-OPM: LGPL 2.1
-- MiniAudio: Public Domain or MIT-0
+- MiniAudio: Public Domain OR MIT-0 (dual license)
