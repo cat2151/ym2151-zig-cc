@@ -206,16 +206,16 @@ def build_phase4_windows(cross_compile=False):
         return False
     
     if cross_compile:
-        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "phase4_player.exe",
-               "src/phase4/phase4_player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "player.exe",
+               "src/phase4/player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
     else:
-        cmd = ["zig", "cc", "-o", "phase4_player.exe",
-               "src/phase4/phase4_player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+        cmd = ["zig", "cc", "-o", "player.exe",
+               "src/phase4/player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
 
     if not run_command(cmd, "Building phase4 music player with zig cc"):
         return False
-    
-    print("✅ Build successful: phase4_player.exe")
+
+    print("✅ Build successful: player.exe")
     return True
 
 

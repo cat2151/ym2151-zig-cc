@@ -14,8 +14,8 @@ wav_output
 wav_output.exe
 real_time_audio
 real_time_audio.exe
-phase4_player
-phase4_player.exe
+player
+player.exe
 *.o
 *.obj
 
