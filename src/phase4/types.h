@@ -30,6 +30,7 @@ typedef struct {
     uint32_t sample_time;  // Time in samples from start (not delta)
     uint8_t address;
     uint8_t data;
+    uint8_t is_data_write;  // 0 = address write, 1 = data write (for pass2 only)
 } RegisterEvent;
 
 // Dynamic array for register events

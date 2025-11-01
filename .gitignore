@@ -16,6 +16,8 @@ real_time_audio
 real_time_audio.exe
 player
 player.exe
+phase4_player
+phase4_player.exe
 *.o
 *.obj
 
