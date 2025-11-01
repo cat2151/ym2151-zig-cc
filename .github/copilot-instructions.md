@@ -8,8 +8,7 @@ This is a Yamaha YM2151 (OPM) FM synthesizer emulation project using the Nuked-O
 ### Core Emulation (`opm.c` / `opm.h`)
 - **Nuked-OPM**: LGPL 2.1 licensed YM2151 emulator (version 0.9.2 beta)
 - **Key API**: `OPM_Clock()`, `OPM_Write()`, `OPM_SetIC()`, `OPM_Reset()`
-- **Critical pattern**: Always call `OPM_SetIC()` after reset to avoid silent output
-- **Timing**: Use 10ms delays after each register write for proper initialization
+- **Critical pattern**: Use 12 cycles delays after each register write for proper initialization to avoid silent output
 
 ### Three-Phase Architecture
 ```
@@ -53,9 +52,8 @@ python3 build.py build-windows      # Cross-compile for Windows
 4. Key ON: `0x08` with operator mask (0x78 = all 4 operators) + channel
 
 ### Critical Timing Constants
-- `OPM_CLOCK`: 3579545 (3.579545 MHz)
-- `CYCLES_PER_SAMPLE`: 64 (standard emulation ratio)  
-- `REGISTER_WRITE_DELAY_MS`: 10ms (essential delay between writes)
+- `CYCLES_PER_SAMPLE`: 64 (standard emulation ratio)
+- `REGISTER_WRITE_DELAY_CYCLES`: 12 (essential delay between writes)
 
 ## Audio Output Patterns
 
@@ -95,9 +93,8 @@ python3 build.py build-windows      # Cross-compile for Windows
 - Phase3: Audible 440Hz tone for 3 seconds
 
 ### Common Issues
-- **Silent output**: Forgot `OPM_SetIC()` call after reset
+- **Silent output**: Missing register write delays
 - **Compilation errors**: Missing `-lm` flag or wrong dependencies for phase3
-- **Timing issues**: Insufficient delays between register writes
 
 ## File Organization
 
@@ -113,3 +110,7 @@ python3 build.py build-windows      # Cross-compile for Windows
 - Always allocate stereo buffers (`samples * 2`)
 - Follow existing error handling patterns (fprintf + return 1)
 - Use consistent sample rate: 44100Hz across all phases
+
+## userからの指示
+- PRコメントはuserレビュー負荷を下げるため日本語で行うこと。
+   - それ以外は、ハルシネーション確率を下げるために英語で行うこと。
