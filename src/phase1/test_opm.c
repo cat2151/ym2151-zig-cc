@@ -12,7 +12,7 @@
 // Sample rate and clock settings
 #define SAMPLE_RATE 44100
 #define OPM_CLOCK 3579545  // OPM clock frequency (3.579545 MHz)
-#define CYCLES_PER_SAMPLE ((OPM_CLOCK + SAMPLE_RATE / 2) / SAMPLE_RATE)  // Calculate cycles per sample with rounding
+#define CYCLES_PER_SAMPLE (OPM_CLOCK / SAMPLE_RATE)  // Calculate cycles per sample (truncated)
 #define DURATION_SECONDS 3
 #define TOTAL_SAMPLES (SAMPLE_RATE * DURATION_SECONDS)
 
@@ -46,14 +46,22 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     }
 }
 
+// Reference clock for MIDI note to KC/KF mapping (standard YM2151 clock)
+#define OPM_CLOCK_REFERENCE 3579545
+
 // Helper function to calculate KC (Key Code) from MIDI note number
-// KC encodes the octave and note within the octave
-// This calculation is independent of OPM_CLOCK
-uint8_t calculate_kc(int midi_note) {
-    // Calculate octave and note within octave
-    // YM2151 octave range is 0-7, note range is 0-11 for chromatic scale
+// This accounts for the current OPM_CLOCK to produce correct frequencies
+// The YM2151's output frequency scales linearly with clock, so we adjust octaves
+uint8_t calculate_kc(int midi_note, int opm_clock) {
+    // Calculate base octave and note for reference clock
     int octave = midi_note / 12;
     int note = midi_note % 12;
+    
+    // Adjust octave based on clock ratio to maintain correct frequency
+    // If clock is doubled, we need to shift down one octave (divide freq by 2)
+    double clock_ratio = (double)opm_clock / OPM_CLOCK_REFERENCE;
+    double octave_adjustment = log2(clock_ratio);
+    octave = (int)round(octave - octave_adjustment);
     
     // Clamp octave to valid range 0-7
     if (octave < 0) octave = 0;
@@ -66,10 +74,9 @@ uint8_t calculate_kc(int midi_note) {
     return kc;
 }
 
-// Helper function to calculate KF (Key Fraction) from MIDI note number with fine tuning
+// Helper function to calculate KF (Key Fraction) for fine tuning
 // KF provides fine tuning between semitones (0-63)
 // For standard MIDI notes without pitch bend, kf_fraction should be 0.0
-// This calculation is independent of OPM_CLOCK
 uint8_t calculate_kf(double kf_fraction) {
     // KF is 6 bits (0-63), representing the fraction of a semitone
     // kf_fraction should be in range [0.0, 1.0)
@@ -99,11 +106,13 @@ void configure_440hz_tone(opm_t *chip) {
     
     // Set frequency (440 Hz = A4 = MIDI note 69)
     // Calculate KC (Key Code) and KF (Key Fraction) dynamically from MIDI note number
+    // KC calculation accounts for OPM_CLOCK to produce correct frequency
     int midi_note = 69;  // A4 (440 Hz)
-    uint8_t kc = calculate_kc(midi_note);
+    uint8_t kc = calculate_kc(midi_note, OPM_CLOCK);
     uint8_t kf = calculate_kf(0.0);  // No fine tuning for standard MIDI note
     
-    printf("  Calculated KC=0x%02X, KF=0x%02X for MIDI note %d (440Hz)\n", kc, kf, midi_note);
+    printf("  Calculated KC=0x%02X, KF=0x%02X for MIDI note %d (440Hz) at OPM_CLOCK=%d\n", 
+           kc, kf, midi_note, OPM_CLOCK);
     
     write_register_with_delay(chip, 0x28 + channel, kc, dummy_output);
     write_register_with_delay(chip, 0x30 + channel, kf, dummy_output);
