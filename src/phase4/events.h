@@ -48,25 +48,27 @@ uint32_t duration_to_samples(double duration_seconds) {
 
 // MIDI note to YM2151 KC/KF conversion
 void midi_to_kc_kf(uint8_t midi_note, uint8_t* kc, uint8_t* kf) {
-    // Note table mapping MIDI note in octave to YM2151 NOTE field
+    // YM2151のノートテーブル
     // Based on empirical testing with 440Hz (A4) = KC 0x4A
     const uint8_t note_table[12] = {
-        0,   // C
-        1,   // C#
-        2,   // D
-        4,   // D#
-        5,   // E
-        6,   // F (corrected to match YM2151 spec)
+        0,   // C# (YM2151 note 0)
+        1,   // D
+        2,   // D#
+        4,   // E
+        5,   // F
         6,   // F#
         8,   // G
         9,   // G#
         10,  // A
         12,  // A#
-        13   // B
+        13,  // B
+        14   // C  (YM2151 note 14)
     };
     
-    uint8_t midi_octave = (midi_note / 12) - 1;
-    uint8_t note_in_octave = midi_note % 12;
+    // MIDI noteを1つ下げることで、C音が前オクターブのB位置を参照。ただし、MIDI note 0の場合はアンダーフローを防ぐ
+    uint8_t adjusted_midi = (midi_note > 0) ? midi_note - 1 : 0;
+    uint8_t midi_octave = (adjusted_midi / 12) - 1;
+    uint8_t note_in_octave = adjusted_midi % 12;
     uint8_t ym_note = note_table[note_in_octave];
     
     *kc = (midi_octave << 4) | ym_note;
