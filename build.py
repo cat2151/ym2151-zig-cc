@@ -55,11 +55,11 @@ def build_linux(use_zig=True):
     print("\n" + "=" * 60)
     print("Building for Linux")
     print("=" * 60)
-    
+
     if use_zig:
         if not check_zig():
             return False
-        
+
         cmd = ["zig", "cc", "-o", "test_opm", "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
         if not run_command(cmd, "Building with zig cc"):
             return False
@@ -67,7 +67,7 @@ def build_linux(use_zig=True):
         cmd = ["gcc", "-o", "test_opm", "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
         if not run_command(cmd, "Building with gcc"):
             return False
-    
+
     print("✅ Build successful: test_opm")
     return True
 
@@ -80,19 +80,29 @@ def build_windows(cross_compile=False):
     else:
         print("Building for Windows")
     print("=" * 60)
-    
+
     if not check_zig():
         return False
-    
+
     if cross_compile:
-        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "test_opm.exe", 
-               "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
+        cmd = [
+            "zig",
+            "cc",
+            "-target",
+            "x86_64-windows",
+            "-o",
+            "test_opm.exe",
+            "src/phase1/test_opm.c",
+            "opm.c",
+            "-lm",
+            "-fwrapv",
+        ]
     else:
         cmd = ["zig", "cc", "-o", "test_opm.exe", "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
-    
+
     if not run_command(cmd, "Building with zig cc"):
         return False
-    
+
     print("✅ Build successful: test_opm.exe")
     return True
 
@@ -105,20 +115,29 @@ def build_phase2_windows(cross_compile=False):
     else:
         print("Building phase2 WAV output for Windows")
     print("=" * 60)
-    
+
     if not check_zig():
         return False
-    
+
     if cross_compile:
-        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "wav_output.exe",
-               "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
+        cmd = [
+            "zig",
+            "cc",
+            "-target",
+            "x86_64-windows",
+            "-o",
+            "wav_output.exe",
+            "src/phase2/wav_output.c",
+            "opm.c",
+            "-lm",
+            "-fwrapv",
+        ]
     else:
-        cmd = ["zig", "cc", "-o", "wav_output.exe",
-               "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
-    
+        cmd = ["zig", "cc", "-o", "wav_output.exe", "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
+
     if not run_command(cmd, "Building phase2 WAV output with zig cc"):
         return False
-    
+
     print("✅ Build successful: wav_output.exe")
     return True
 
@@ -128,11 +147,11 @@ def build_phase2_linux(use_zig=True):
     print("\n" + "=" * 60)
     print("Building phase2 WAV output for Linux")
     print("=" * 60)
-    
+
     if use_zig:
         if not check_zig():
             return False
-        
+
         cmd = ["zig", "cc", "-o", "wav_output", "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
         if not run_command(cmd, "Building phase2 WAV output with zig cc"):
             return False
@@ -140,7 +159,7 @@ def build_phase2_linux(use_zig=True):
         cmd = ["gcc", "-o", "wav_output", "src/phase2/wav_output.c", "opm.c", "-lm", "-fwrapv"]
         if not run_command(cmd, "Building phase2 WAV output with gcc"):
             return False
-    
+
     print("✅ Build successful: wav_output")
     return True
 
@@ -153,20 +172,40 @@ def build_phase3_windows(cross_compile=False):
     else:
         print("Building phase3 real-time audio for Windows")
     print("=" * 60)
-    
+
     if not check_zig():
         return False
-    
+
     if cross_compile:
-        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "real_time_audio.exe",
-               "src/phase3/real_time_audio.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+        cmd = [
+            "zig",
+            "cc",
+            "-target",
+            "x86_64-windows",
+            "-o",
+            "real_time_audio.exe",
+            "src/phase3/real_time_audio.c",
+            "opm.c",
+            "-lm",
+            "-fwrapv",
+            "-O3",
+        ]
     else:
-        cmd = ["zig", "cc", "-o", "real_time_audio.exe",
-               "src/phase3/real_time_audio.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+        cmd = [
+            "zig",
+            "cc",
+            "-o",
+            "real_time_audio.exe",
+            "src/phase3/real_time_audio.c",
+            "opm.c",
+            "-lm",
+            "-fwrapv",
+            "-O3",
+        ]
 
     if not run_command(cmd, "Building phase3 real-time audio with zig cc"):
         return False
-    
+
     print("✅ Build successful: real_time_audio.exe")
     return True
 
@@ -176,19 +215,40 @@ def build_phase3_linux(use_zig=True):
     print("\n" + "=" * 60)
     print("Building phase3 real-time audio for Linux")
     print("=" * 60)
-    
+
     if use_zig:
         if not check_zig():
             return False
-        
-        cmd = ["zig", "cc", "-o", "real_time_audio", "src/phase3/real_time_audio.c", "opm.c", "-lm", "-lpthread", "-ldl", "-fwrapv"]
+
+        cmd = [
+            "zig",
+            "cc",
+            "-o",
+            "real_time_audio",
+            "src/phase3/real_time_audio.c",
+            "opm.c",
+            "-lm",
+            "-lpthread",
+            "-ldl",
+            "-fwrapv",
+        ]
         if not run_command(cmd, "Building phase3 real-time audio with zig cc"):
             return False
     else:
-        cmd = ["gcc", "-o", "real_time_audio", "src/phase3/real_time_audio.c", "opm.c", "-lm", "-lpthread", "-ldl", "-fwrapv"]
+        cmd = [
+            "gcc",
+            "-o",
+            "real_time_audio",
+            "src/phase3/real_time_audio.c",
+            "opm.c",
+            "-lm",
+            "-lpthread",
+            "-ldl",
+            "-fwrapv",
+        ]
         if not run_command(cmd, "Building phase3 real-time audio with gcc"):
             return False
-    
+
     print("✅ Build successful: real_time_audio")
     return True
 
@@ -201,16 +261,26 @@ def build_phase4_windows(cross_compile=False):
     else:
         print("Building phase4 music player for Windows")
     print("=" * 60)
-    
+
     if not check_zig():
         return False
-    
+
     if cross_compile:
-        cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "player.exe",
-               "src/phase4/player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+        cmd = [
+            "zig",
+            "cc",
+            "-target",
+            "x86_64-windows",
+            "-o",
+            "player.exe",
+            "src/phase4/player.c",
+            "opm.c",
+            "-lm",
+            "-fwrapv",
+            "-O3",
+        ]
     else:
-        cmd = ["zig", "cc", "-o", "player.exe",
-               "src/phase4/player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+        cmd = ["zig", "cc", "-o", "player.exe", "src/phase4/player.c", "opm.c", "-lm", "-fwrapv", "-O3"]
 
     if not run_command(cmd, "Building phase4 music player with zig cc"):
         return False
@@ -224,19 +294,40 @@ def build_phase4_linux(use_zig=True):
     print("\n" + "=" * 60)
     print("Building phase4 music player for Linux")
     print("=" * 60)
-    
+
     if use_zig:
         if not check_zig():
             return False
-        
-        cmd = ["zig", "cc", "-o", "phase4_player", "src/phase4/phase4_player.c", "opm.c", "-lm", "-lpthread", "-ldl", "-fwrapv"]
+
+        cmd = [
+            "zig",
+            "cc",
+            "-o",
+            "phase4_player",
+            "src/phase4/phase4_player.c",
+            "opm.c",
+            "-lm",
+            "-lpthread",
+            "-ldl",
+            "-fwrapv",
+        ]
         if not run_command(cmd, "Building phase4 music player with zig cc"):
             return False
     else:
-        cmd = ["gcc", "-o", "phase4_player", "src/phase4/phase4_player.c", "opm.c", "-lm", "-lpthread", "-ldl", "-fwrapv"]
+        cmd = [
+            "gcc",
+            "-o",
+            "phase4_player",
+            "src/phase4/phase4_player.c",
+            "opm.c",
+            "-lm",
+            "-lpthread",
+            "-ldl",
+            "-fwrapv",
+        ]
         if not run_command(cmd, "Building phase4 music player with gcc"):
             return False
-    
+
     print("✅ Build successful: phase4_player")
     return True
 
@@ -246,18 +337,18 @@ def run_test():
     print("\n" + "=" * 60)
     print("Running test")
     print("=" * 60)
-    
+
     system = platform.system()
     if system == "Windows":
         executable = "test_opm.exe"
     else:
         executable = "./test_opm"
-    
+
     if not Path(executable if system != "Windows" else "test_opm.exe").exists():
         print(f"❌ Error: {executable} not found")
         print("Please build first")
         return False
-    
+
     try:
         result = subprocess.run([executable], check=True)
         return result.returncode == 0
@@ -270,26 +361,26 @@ def main():
     """Main entry point."""
     print("ym2151-zig-cc Build Script")
     print("=" * 60)
-    
+
     # Parse command line arguments
     if len(sys.argv) > 1:
         command = sys.argv[1].lower()
     else:
         command = "build"
-    
+
     system = platform.system()
-    
+
     success = False
-    
+
     if command == "build":
         if system == "Windows":
             success = build_windows(cross_compile=False)
         else:
             success = build_linux(use_zig=True)
-        
+
         if success:
             run_test()
-    
+
     elif command == "build-gcc":
         if system != "Linux":
             print("❌ Error: gcc build only supported on Linux")
@@ -297,58 +388,58 @@ def main():
         success = build_linux(use_zig=False)
         if success:
             run_test()
-    
+
     elif command == "build-windows":
         success = build_windows(cross_compile=(system != "Windows"))
-    
+
     elif command == "build-phase2":
         if system == "Windows":
             success = build_phase2_windows(cross_compile=False)
         else:
             success = build_phase2_linux(use_zig=True)
-    
+
     elif command == "build-phase2-gcc":
         if system != "Linux":
             print("❌ Error: gcc build only supported on Linux")
             return 1
         success = build_phase2_linux(use_zig=False)
-    
+
     elif command == "build-phase2-windows":
         success = build_phase2_windows(cross_compile=(system != "Windows"))
-    
+
     elif command == "build-phase3":
         if system == "Windows":
             success = build_phase3_windows(cross_compile=False)
         else:
             success = build_phase3_linux(use_zig=True)
-    
+
     elif command == "build-phase3-gcc":
         if system != "Linux":
             print("❌ Error: gcc build only supported on Linux")
             return 1
         success = build_phase3_linux(use_zig=False)
-    
+
     elif command == "build-phase3-windows":
         success = build_phase3_windows(cross_compile=(system != "Windows"))
-    
+
     elif command == "build-phase4":
         if system == "Windows":
             success = build_phase4_windows(cross_compile=False)
         else:
             success = build_phase4_linux(use_zig=True)
-    
+
     elif command == "build-phase4-gcc":
         if system != "Linux":
             print("❌ Error: gcc build only supported on Linux")
             return 1
         success = build_phase4_linux(use_zig=False)
-    
+
     elif command == "build-phase4-windows":
         success = build_phase4_windows(cross_compile=(system != "Windows"))
-    
+
     elif command == "test":
         success = run_test()
-    
+
     elif command == "help":
         print("Usage: python3 build.py [command]")
         print()
@@ -368,12 +459,12 @@ def main():
         print("  test                 Run the test program")
         print("  help                 Show this help message")
         return 0
-    
+
     else:
         print(f"❌ Unknown command: {command}")
         print("Run 'python3 build.py help' for usage")
         return 1
-    
+
     return 0 if success else 1
 
 
