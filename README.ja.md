@@ -2,6 +2,16 @@
 
 Nuked-OPM を利用した簡易シーケンサを zig cc でビルドするプロジェクト
 
+<p align="left">
+  <a href="README.ja.md"><img src="https://img.shields.io/badge/🇯🇵-Japanese-red.svg" alt="Japanese"></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/🇺🇸-English-blue.svg" alt="English"></a>
+</p>
+
+## Quick Links
+| 項目 | リンク |
+|------|--------|
+| 📊 開発状況 | [generated-docs/development-status](generated-docs/development-status.md) |
+
 ## 概要
 
 このプロジェクトは、Nuked-OPM（Yamaha YM2151エミュレータ）を使用してシンプルな音を鳴らす実験用のC言語プログラムです。ビルドには zig cc を使用します。
@@ -29,3 +39,5 @@ Nuked-OPM を利用した簡易シーケンサを zig cc でビルドするプ�
 - このプロジェクト: MIT License
 - Nuked-OPM: LGPL 2.1
 - MiniAudio: Public Domain OR MIT-0 (dual license)
+
+※英語版README.mdは、README.ja.mdを元にGeminiの翻訳でGitHub Actionsにより自動生成しています
