@@ -65,41 +65,34 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     }
 }
 
-// Helper function to calculate KC (Key Code) from frequency
+// Helper function to calculate KC (Key Code) from MIDI note number
 // KC encodes the octave and note within the octave
-uint8_t calculate_kc(double frequency) {
-    // Convert frequency to MIDI note number
-    // n = 12 * log2(f / 440) + 69
-    double midi_note = 12.0 * log2(frequency / 440.0) + 69.0;
-    
+// This calculation is independent of OPM_CLOCK
+uint8_t calculate_kc(int midi_note) {
     // Calculate octave and note within octave
-    // Note: YM2151 octave range is 0-7, note range is 0-15 (but typically 0-11 for 12 notes)
-    int note_index = (int)floor(midi_note);
-    int octave = (note_index / 12) - 1;  // Adjust for MIDI note 0 = C-1
-    int note = note_index % 12;
+    // YM2151 octave range is 0-7, note range is 0-11 for chromatic scale
+    int octave = midi_note / 12;
+    int note = midi_note % 12;
     
     // Clamp octave to valid range 0-7
     if (octave < 0) octave = 0;
     if (octave > 7) octave = 7;
     
     // KC format: upper 3 bits = octave, lower 4 bits = note
-    // Note is mapped as: C=0, C#=1, D=2, ..., B=11, with upper 4 values (12-15) unused
+    // Note is mapped as: C=0, C#=1, D=2, ..., B=11
     uint8_t kc = ((octave & 0x07) << 4) | (note & 0x0F);
     
     return kc;
 }
 
-// Helper function to calculate KF (Key Fraction) from frequency
+// Helper function to calculate KF (Key Fraction) from MIDI note number with fine tuning
 // KF provides fine tuning between semitones (0-63)
-uint8_t calculate_kf(double frequency) {
-    // Convert frequency to MIDI note number
-    double midi_note = 12.0 * log2(frequency / 440.0) + 69.0;
-    
-    // Extract the fractional part (fine tuning)
-    double fractional_note = midi_note - floor(midi_note);
-    
+// For standard MIDI notes without pitch bend, kf_fraction should be 0.0
+// This calculation is independent of OPM_CLOCK
+uint8_t calculate_kf(double kf_fraction) {
     // KF is 6 bits (0-63), representing the fraction of a semitone
-    uint8_t kf = (uint8_t)(fractional_note * 64.0);
+    // kf_fraction should be in range [0.0, 1.0)
+    uint8_t kf = (uint8_t)(kf_fraction * 64.0);
     
     // Clamp to 6-bit range
     if (kf > 63) kf = 63;
@@ -123,12 +116,13 @@ void configure_440hz_tone(opm_t *chip) {
     // RL_FB_CONNECT: RL=11 (both L/R), FB=0, CON=7 (all carriers direct to output)
     write_register_with_delay(chip, 0x20 + channel, 0xC7, dummy_output);
     
-    // Set frequency (440 Hz = A4)
-    // Calculate KC (Key Code) and KF (Key Fraction) dynamically
-    uint8_t kc = calculate_kc(440.0);
-    uint8_t kf = calculate_kf(440.0);
+    // Set frequency (440 Hz = A4 = MIDI note 69)
+    // Calculate KC (Key Code) and KF (Key Fraction) dynamically from MIDI note number
+    int midi_note = 69;  // A4 (440 Hz)
+    uint8_t kc = calculate_kc(midi_note);
+    uint8_t kf = calculate_kf(0.0);  // No fine tuning for standard MIDI note
     
-    printf("  Calculated KC=0x%02X, KF=0x%02X for 440Hz\n", kc, kf);
+    printf("  Calculated KC=0x%02X, KF=0x%02X for MIDI note %d (440Hz)\n", kc, kf, midi_note);
     
     write_register_with_delay(chip, 0x28 + channel, kc, dummy_output);
     write_register_with_delay(chip, 0x30 + channel, kf, dummy_output);
