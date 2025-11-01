@@ -2,11 +2,8 @@
 
 // Process register events up to current sample time
 void process_events_until(AudioContext* ctx, uint32_t current_sample) {
-    int32_t dummy_output[2] = {0, 0};
-    
-    // Pass2 events specify WHEN to issue writes
-    // Each write still needs the proper protocol with clock cycles
-    // Note: These clock cycles are part of the write protocol, not extra delays
+    // Pass2 events already include timing for addr and data register writes
+    // Each event specifies exactly when to write, no additional delays needed
     
     while (ctx->next_event_index < ctx->events->count) {
         RegisterEvent* event = &ctx->events->events[ctx->next_event_index];
@@ -15,15 +12,14 @@ void process_events_until(AudioContext* ctx, uint32_t current_sample) {
             break;  // Haven't reached this event yet
         }
         
-        // Execute the register write protocol with required delays
-        OPM_Write(&ctx->chip, 0, event->address);
-        for (int i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
-            OPM_Clock(&ctx->chip, dummy_output, NULL, NULL, NULL);
-        }
-        
-        OPM_Write(&ctx->chip, 1, event->data);
-        for (int i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
-            OPM_Clock(&ctx->chip, dummy_output, NULL, NULL, NULL);
+        // Write to the appropriate register (address or data)
+        // The timing is already calculated in pass2, so no cycle consumption here
+        if (event->is_data_write) {
+            // Data register write
+            OPM_Write(&ctx->chip, OPM_DATA_REGISTER, event->data);
+        } else {
+            // Address register write
+            OPM_Write(&ctx->chip, OPM_ADDRESS_REGISTER, event->address);
         }
         
         ctx->next_event_index++;

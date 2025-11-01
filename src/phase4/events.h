@@ -18,8 +18,8 @@ RegisterEventList* create_event_list() {
     return list;
 }
 
-// Add event to list
-void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data) {
+// Add event to list with is_data_write flag
+void add_event_with_flag(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data, uint8_t is_data_write) {
     if (list->count >= list->capacity) {
         list->capacity *= 2;
         RegisterEvent* new_events = (RegisterEvent*)realloc(list->events, sizeof(RegisterEvent) * list->capacity);
@@ -32,7 +32,13 @@ void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, u
     list->events[list->count].sample_time = sample_time;
     list->events[list->count].address = address;
     list->events[list->count].data = data;
+    list->events[list->count].is_data_write = is_data_write;
     list->count++;
+}
+
+// Add event to list (sets is_data_write=0, used by pass1 generation)
+void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data) {
+    add_event_with_flag(list, sample_time, address, data, 0);
 }
 
 // Free event list
@@ -158,11 +164,11 @@ RegisterEventList* generate_pass1_events() {
     return list;
 }
 
-// Pass 2: Add register write delays
+// Pass 2: Add register write delays and split addr/data writes
 RegisterEventList* generate_pass2_events(RegisterEventList* pass1) {
     RegisterEventList* list = create_event_list();
     
-    printf("Pass 2: Adding register write delays\n");
+    printf("Pass 2: Splitting register writes and adding delays\n");
     printf("  Delay per register write: %d samples\n", DELAY_SAMPLES);
     
     uint32_t accumulated_delay = 0;
@@ -177,15 +183,22 @@ RegisterEventList* generate_pass2_events(RegisterEventList* pass1) {
             last_time = event->sample_time;
         }
         
-        // Add event with accumulated delay
-        uint32_t actual_time = event->sample_time + accumulated_delay;
-        add_event(list, actual_time, event->address, event->data);
+        // Split each pass1 event into two pass2 events with timing:
+        // Note: Both address and data are stored in each event for clarity in JSON output
+        // and to track the complete register write operation.
         
-        // Accumulate delay for next register write
+        // 1. Address register write at time T
+        uint32_t addr_time = event->sample_time + accumulated_delay;
+        add_event_with_flag(list, addr_time, event->address, event->data, 0);  // is_data_write = 0
+        accumulated_delay += DELAY_SAMPLES;
+        
+        // 2. Data register write at time T + DELAY_SAMPLES
+        uint32_t data_time = event->sample_time + accumulated_delay;
+        add_event_with_flag(list, data_time, event->address, event->data, 1);  // is_data_write = 1
         accumulated_delay += DELAY_SAMPLES;
     }
     
-    printf("  Pass 2 complete: %zu events\n\n", list->count);
+    printf("  Pass 2 complete: %zu events (split from %zu pass1 events)\n\n", list->count, pass1->count);
     return list;
 }
 
@@ -227,8 +240,8 @@ void save_events_json(const char* filename, RegisterEventList* events) {
     
     for (size_t i = 0; i < events->count; i++) {
         RegisterEvent* e = &events->events[i];
-        fprintf(fp, "    {\"time\": %u, \"addr\": \"0x%02X\", \"data\": \"0x%02X\"}",
-                e->sample_time, e->address, e->data);
+        fprintf(fp, "    {\"time\": %u, \"addr\": \"0x%02X\", \"data\": \"0x%02X\", \"is_data\": %u}",
+                e->sample_time, e->address, e->data, e->is_data_write);
         if (i < events->count - 1) {
             fprintf(fp, ",");
         }
