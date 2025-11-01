@@ -26,6 +26,12 @@ Nuked-OPM を利用した簡易シーケンサを zig cc でビルドするプ�
 - ✅ Windowsで簡単にYM2151の音を鳴らす体験を提供
 - ✅ シンプルなcodeで参考にしやすい（かもしれない）
 
+## ビルド
+
+```powershell
+python build.py build-phase4 && ./player.exe
+```
+
 ## スコープ外
 
 このprojectはcodeのシンプルさを優先するため、以下のような、codeを複雑にする機能はスコープ外とします。
