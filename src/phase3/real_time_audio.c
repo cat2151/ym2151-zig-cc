@@ -13,14 +13,13 @@
 #include "../../opm.h"
 
 // Sample rate and clock settings
-#define SAMPLE_RATE 44100
-#define OPM_CLOCK 3579545  // OPM clock frequency (3.579545 MHz)
-#define CYCLES_PER_SAMPLE 64  // Common value for OPM emulation
-#define DURATION_SECONDS 3
+#define OPM_CLOCK 3579545
+// #define OPM_CLOCK 4000000 // issue #22
+#define CYCLES_PER_SAMPLE 64
+#define SAMPLE_RATE (OPM_CLOCK / CYCLES_PER_SAMPLE)
 
-// Delay calculations
-#define US_TO_CYCLES(us) ((OPM_CLOCK * (us)) / 1000000)
-#define REGISTER_WRITE_DELAY_US 10
+#define DURATION_SECONDS 3
+#define REGISTER_WRITE_DELAY_CYCLES 128
 
 // User data structure for MiniAudio callback
 typedef struct {
@@ -35,17 +34,14 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     // Write address
     OPM_Write(chip, 0, addr);
     
-    // Delay 10us worth of cycles
-    uint32_t delay_cycles = US_TO_CYCLES(REGISTER_WRITE_DELAY_US);
-    for (uint32_t i = 0; i < delay_cycles; i++) {
+    for (uint32_t i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
         OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
     }
     
     // Write data
     OPM_Write(chip, 1, data);
     
-    // Delay 10us worth of cycles
-    for (uint32_t i = 0; i < delay_cycles; i++) {
+    for (uint32_t i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
         OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
     }
 }
