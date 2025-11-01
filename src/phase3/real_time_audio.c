@@ -10,12 +10,13 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
+#include <math.h>
 #include "../../opm.h"
 
 // Sample rate and clock settings
 #define SAMPLE_RATE 44100
 #define OPM_CLOCK 3579545  // OPM clock frequency (3.579545 MHz)
-#define CYCLES_PER_SAMPLE 64  // Common value for OPM emulation
+#define CYCLES_PER_SAMPLE ((OPM_CLOCK + SAMPLE_RATE / 2) / SAMPLE_RATE)  // Calculate cycles per sample with rounding
 #define DURATION_SECONDS 3
 
 // Delay calculations
@@ -50,6 +51,48 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     }
 }
 
+// Helper function to calculate KC (Key Code) from frequency
+// KC encodes the octave and note within the octave
+uint8_t calculate_kc(double frequency) {
+    // Convert frequency to MIDI note number
+    // n = 12 * log2(f / 440) + 69
+    double midi_note = 12.0 * log2(frequency / 440.0) + 69.0;
+    
+    // Calculate octave and note within octave
+    // Note: YM2151 octave range is 0-7, note range is 0-15 (but typically 0-11 for 12 notes)
+    int note_index = (int)floor(midi_note);
+    int octave = (note_index / 12) - 1;  // Adjust for MIDI note 0 = C-1
+    int note = note_index % 12;
+    
+    // Clamp octave to valid range 0-7
+    if (octave < 0) octave = 0;
+    if (octave > 7) octave = 7;
+    
+    // KC format: upper 3 bits = octave, lower 4 bits = note
+    // Note is mapped as: C=0, C#=1, D=2, ..., B=11, with upper 4 values (12-15) unused
+    uint8_t kc = ((octave & 0x07) << 4) | (note & 0x0F);
+    
+    return kc;
+}
+
+// Helper function to calculate KF (Key Fraction) from frequency
+// KF provides fine tuning between semitones (0-63)
+uint8_t calculate_kf(double frequency) {
+    // Convert frequency to MIDI note number
+    double midi_note = 12.0 * log2(frequency / 440.0) + 69.0;
+    
+    // Extract the fractional part (fine tuning)
+    double fractional_note = midi_note - floor(midi_note);
+    
+    // KF is 6 bits (0-63), representing the fraction of a semitone
+    uint8_t kf = (uint8_t)(fractional_note * 64.0);
+    
+    // Clamp to 6-bit range
+    if (kf > 63) kf = 63;
+    
+    return kf;
+}
+
 // Configure OPM for 440Hz tone on channel 0
 void configure_440hz_tone(opm_t *chip) {
     int32_t dummy_output[2] = {0, 0};
@@ -67,11 +110,14 @@ void configure_440hz_tone(opm_t *chip) {
     write_register_with_delay(chip, 0x20 + channel, 0xC7, dummy_output);
     
     // Set frequency (440 Hz = A4)
-    // KC (Key Code) for A4 (440Hz): 0x4A
-    write_register_with_delay(chip, 0x28 + channel, 0x4A, dummy_output);
+    // Calculate KC (Key Code) and KF (Key Fraction) dynamically
+    uint8_t kc = calculate_kc(440.0);
+    uint8_t kf = calculate_kf(440.0);
     
-    // KF (Key Fraction)
-    write_register_with_delay(chip, 0x30 + channel, 0x00, dummy_output);
+    printf("  Calculated KC=0x%02X, KF=0x%02X for 440Hz\n", kc, kf);
+    
+    write_register_with_delay(chip, 0x28 + channel, kc, dummy_output);
+    write_register_with_delay(chip, 0x30 + channel, kf, dummy_output);
     
     // PMS/AMS (Phase/Amplitude Modulation Sensitivity)
     write_register_with_delay(chip, 0x38 + channel, 0x00, dummy_output);
