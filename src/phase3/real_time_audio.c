@@ -1,5 +1,6 @@
 /* Real-time audio playback program using Nuked-OPM and MiniAudio
  * Plays 440Hz tone for 3 seconds in real-time
+ * With downsampling from ~55kHz (internal OPM rate) to 48kHz (output)
  */
 
 #define MINIAUDIO_IMPLEMENTATION
@@ -16,10 +17,16 @@
 #define OPM_CLOCK 3579545
 // #define OPM_CLOCK 4000000 // issue #22
 #define CYCLES_PER_SAMPLE 64
-#define SAMPLE_RATE (OPM_CLOCK / CYCLES_PER_SAMPLE)
+#define INTERNAL_SAMPLE_RATE (OPM_CLOCK / CYCLES_PER_SAMPLE)  // ~55930 Hz
+#define OUTPUT_SAMPLE_RATE 48000  // Output device sample rate
 
 #define DURATION_SECONDS 3
 #define REGISTER_WRITE_DELAY_CYCLES 128
+
+// Internal buffer size for resampler
+// At 55930Hz internal rate and 48000Hz output rate, we need ~1.165x input frames
+// This buffer size supports output callbacks up to ~3500 frames
+#define INTERNAL_BUFFER_SIZE 4096
 
 // User data structure for MiniAudio callback
 typedef struct {
@@ -27,6 +34,8 @@ typedef struct {
     uint32_t samples_played;
     uint32_t total_samples;
     int is_playing;
+    ma_resampler resampler;
+    int16_t internal_buffer[INTERNAL_BUFFER_SIZE * 2];  // Stereo buffer
 } AudioContext;
 
 // Helper function to write register with delay
@@ -119,14 +128,31 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
         return;
     }
     
-    for (ma_uint32 i = 0; i < frameCount; i++) {
+    // Calculate how many internal samples we need to generate
+    ma_uint64 requiredInputFrames = 0;
+    ma_result result = ma_resampler_get_required_input_frame_count(&pContext->resampler, frameCount, &requiredInputFrames);
+    if (result != MA_SUCCESS) {
+        memset(pOutput, 0, frameCount * 2 * sizeof(int16_t));
+        return;
+    }
+    
+    // Clamp to buffer size
+    if (requiredInputFrames > INTERNAL_BUFFER_SIZE) {
+        requiredInputFrames = INTERNAL_BUFFER_SIZE;
+    }
+    
+    // Generate internal samples at ~55930 Hz
+    ma_uint64 actualInputFrames = 0;
+    for (ma_uint64 i = 0; i < requiredInputFrames; i++) {
         // Check if we've played enough samples
         if (pContext->samples_played >= pContext->total_samples) {
-            // Fill remaining with silence
-            for (ma_uint32 j = i; j < frameCount; j++) {
-                pOutputS16[j * 2] = 0;
-                pOutputS16[j * 2 + 1] = 0;
+            // Fill remaining internal buffer with silence for smooth fadeout
+            for (ma_uint64 j = i; j < requiredInputFrames; j++) {
+                pContext->internal_buffer[j * 2] = 0;
+                pContext->internal_buffer[j * 2 + 1] = 0;
             }
+            // We filled the entire buffer (audio + silence) so use all frames
+            actualInputFrames = requiredInputFrames;
             pContext->is_playing = 0;
             break;
         }
@@ -140,16 +166,41 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
         }
         
         // Convert 32-bit samples to 16-bit by dividing by 2
-        pOutputS16[i * 2] = (int16_t)(output[0] / 2);
-        pOutputS16[i * 2 + 1] = (int16_t)(output[1] / 2);
+        pContext->internal_buffer[i * 2] = (int16_t)(output[0] / 2);
+        pContext->internal_buffer[i * 2 + 1] = (int16_t)(output[1] / 2);
         
         pContext->samples_played++;
+    }
+    
+    // If we didn't break early, we generated all required frames
+    if (actualInputFrames == 0) {
+        actualInputFrames = requiredInputFrames;
+    }
+    
+    // Resample from internal rate to output rate
+    ma_uint64 inputFramesProcessed = actualInputFrames;
+    ma_uint64 outputFramesProcessed = frameCount;
+    result = ma_resampler_process_pcm_frames(&pContext->resampler, 
+                                             pContext->internal_buffer, &inputFramesProcessed,
+                                             pOutputS16, &outputFramesProcessed);
+    
+    if (result != MA_SUCCESS) {
+        memset(pOutput, 0, frameCount * 2 * sizeof(int16_t));
+        return;
+    }
+    
+    // Fill any remaining output frames with silence
+    if (outputFramesProcessed < frameCount) {
+        for (ma_uint64 i = outputFramesProcessed; i < frameCount; i++) {
+            pOutputS16[i * 2] = 0;
+            pOutputS16[i * 2 + 1] = 0;
+        }
     }
 }
 
 int main() {
-    printf("Nuked-OPM Real-Time Audio Program (MiniAudio)\n");
-    printf("==============================================\n\n");
+    printf("Nuked-OPM Real-Time Audio Program (MiniAudio with Resampling)\n");
+    printf("=============================================================\n\n");
     
     // Initialize audio context
     AudioContext context;
@@ -162,10 +213,30 @@ int main() {
     printf("Configuring OPM for 440Hz tone...\n");
     configure_440hz_tone(&context.chip);
     
-    // Set playback parameters
+    // Set playback parameters (based on internal sample rate)
     context.samples_played = 0;
-    context.total_samples = SAMPLE_RATE * DURATION_SECONDS;
+    context.total_samples = INTERNAL_SAMPLE_RATE * DURATION_SECONDS;
     context.is_playing = 1;
+    
+    printf("\nInitializing resampler...\n");
+    printf("   Internal rate: %d Hz\n", INTERNAL_SAMPLE_RATE);
+    printf("   Output rate: %d Hz\n", OUTPUT_SAMPLE_RATE);
+    
+    // Initialize resampler
+    ma_resampler_config resamplerConfig = ma_resampler_config_init(
+        ma_format_s16,
+        2,  // channels
+        INTERNAL_SAMPLE_RATE,
+        OUTPUT_SAMPLE_RATE,
+        ma_resample_algorithm_linear
+    );
+    
+    if (ma_resampler_init(&resamplerConfig, NULL, &context.resampler) != MA_SUCCESS) {
+        fprintf(stderr, "❌ Failed to initialize resampler\n");
+        return 1;
+    }
+    
+    printf("✅ Resampler initialized successfully\n");
     
     printf("\nInitializing MiniAudio device...\n");
     
@@ -176,12 +247,13 @@ int main() {
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format   = ma_format_s16;
     deviceConfig.playback.channels = 2;
-    deviceConfig.sampleRate        = SAMPLE_RATE;
+    deviceConfig.sampleRate        = OUTPUT_SAMPLE_RATE;
     deviceConfig.dataCallback      = data_callback;
     deviceConfig.pUserData         = &context;
     
     if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS) {
         fprintf(stderr, "❌ Failed to initialize MiniAudio device\n");
+        ma_resampler_uninit(&context.resampler, NULL);
         return 1;
     }
     
@@ -196,6 +268,7 @@ int main() {
     if (ma_device_start(&device) != MA_SUCCESS) {
         fprintf(stderr, "❌ Failed to start MiniAudio device\n");
         ma_device_uninit(&device);
+        ma_resampler_uninit(&context.resampler, NULL);
         return 1;
     }
     
@@ -208,13 +281,14 @@ int main() {
     ma_sleep(200);
     
     printf("\n✅ Playback completed!\n");
-    printf("   Total samples played: %u\n", context.samples_played);
+    printf("   Total internal samples generated: %u\n", context.samples_played);
     
     // Cleanup
     ma_device_uninit(&device);
+    ma_resampler_uninit(&context.resampler, NULL);
     
     printf("\n✅ SUCCESS!\n");
-    printf("Real-time audio playback completed successfully.\n");
+    printf("Real-time audio playback with resampling completed successfully.\n");
     
     return 0;
 }
