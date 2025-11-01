@@ -287,6 +287,10 @@ void save_events_json(const char* filename, RegisterEventList* events) {
 void process_events_until(AudioContext* ctx, uint32_t current_sample) {
     int32_t dummy_output[2] = {0, 0};
     
+    // Pass2 events specify WHEN to issue writes
+    // Each write still needs the proper protocol with clock cycles
+    // Note: These clock cycles are part of the write protocol, not extra delays
+    
     while (ctx->next_event_index < ctx->events->count) {
         RegisterEvent* event = &ctx->events->events[ctx->next_event_index];
         
@@ -294,13 +298,12 @@ void process_events_until(AudioContext* ctx, uint32_t current_sample) {
             break;  // Haven't reached this event yet
         }
         
-        // Write address
+        // Execute the register write protocol with required delays
         OPM_Write(&ctx->chip, 0, event->address);
         for (int i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
             OPM_Clock(&ctx->chip, dummy_output, NULL, NULL, NULL);
         }
         
-        // Write data
         OPM_Write(&ctx->chip, 1, event->data);
         for (int i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
             OPM_Clock(&ctx->chip, dummy_output, NULL, NULL, NULL);
@@ -456,7 +459,8 @@ int save_wav_file(const char* filename, int32_t* buffer, uint32_t num_samples) {
     
     // Write audio data (convert 32-bit to 16-bit)
     for (uint32_t i = 0; i < num_samples * 2; i++) {
-        int16_t sample = (int16_t)(buffer[i] >> 16);
+        // Divide by 2 to convert from 32-bit to 16-bit range
+        int16_t sample = (int16_t)(buffer[i] / 2);
         fwrite(&sample, sizeof(int16_t), 1, fp);
     }
     
