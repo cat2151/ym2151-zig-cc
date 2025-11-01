@@ -14,11 +14,17 @@ wav_output
 wav_output.exe
 real_time_audio
 real_time_audio.exe
+phase4_player
+phase4_player.exe
 *.o
 *.obj
 
 # WAV output files
 *.wav
+
+# Phase4 test artifacts
+phase4_pass1.json
+phase4_pass2.json
 
 # Distribution / packaging
 .Python
