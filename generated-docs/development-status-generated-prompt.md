@@ -1,4 +1,4 @@
-Last updated: 2025-11-01
+Last updated: 2025-11-02
 
 # 開発状況生成プロンプト（開発者向け）
 
@@ -188,30 +188,44 @@ Last updated: 2025-11-01
 - .github/actions-tmp/package-lock.json
 - .github/actions-tmp/package.json
 - .github/actions-tmp/src/main.js
+- .github/copilot-instructions.md
 - .github/workflows/call-daily-project-summary.yml
 - .github/workflows/call-issue-note.yml
 - .github/workflows/call-translate-readme.yml
-- .github/workflows/test.yml
 - .gitignore
-- BUILD.md
+- .vscode/settings.json
 - LICENSE
+- README.ja.md
 - README.md
-- SUMMARY.md
 - _codeql_detected_source_root
 - build.py
-- issue-notes/10.md
+- issue-notes/12.md
+- issue-notes/13.md
+- issue-notes/14.md
+- issue-notes/17.md
+- issue-notes/20.md
+- issue-notes/21.md
+- issue-notes/22.md
+- issue-notes/29.md
+- issue-notes/30.md
+- issue-notes/31.md
+- issue-notes/33.md
 - issue-notes/5.md
 - issue-notes/6.md
 - issue-notes/7.md
-- issue-notes/8.md
 - opm.c
 - opm.h
-- src/phase2/README.md
+- ruff.toml
+- src/phase1/test_opm.c
 - src/phase2/wav_output.c
-- src/phase3/README.md
 - src/phase3/miniaudio.h
 - src/phase3/real_time_audio.c
-- test_opm.c
+- src/phase4/core.h
+- src/phase4/events.h
+- src/phase4/miniaudio.h
+- src/phase4/player.c
+- src/phase4/types.h
+- src/phase4/wav_writer.h
 
 ## 現在のオープンIssues
 オープン中のIssueはありません
@@ -221,33 +235,33 @@ Last updated: 2025-11-01
 
 ## 最近の変更（過去7日間）
 ### コミット履歴:
-152ceac Merge pull request #11 from cat2151/copilot/implement-real-time-audio
-8168280 Clarify MiniAudio dual license in documentation
-4e72442 Update documentation and gitignore for phase3
-03c0d41 Implement phase3 real-time audio with MiniAudio
-b94a8bb Initial plan
-31793fb Add issue note for #10 [auto]
-98d3597 Merge pull request #9 from cat2151/copilot/implement-wav-output-functionality
-29281c8 Add WAV file output program in src/phase2/
-860e979 Update README with Phase2 WAV output documentation
-b71055b Implement WAV output program in src/phase2/
+74b5e6c Auto-translate README.ja.md to README.md [auto]
+a436b83 Merge branch 'main' of github.com:cat2151/ym2151-zig-cc into main
+f3e9236 ビルド手順を追記
+5b646f6 Auto-translate README.ja.md to README.md [auto]
+8d8b928 他project同様改善
+6abb141 fix #33
+be32d05 Add issue note for #33 [auto]
+7115139 Auto-translate README.ja.md to README.md [auto]
+bd0aceb 状況を反映
+f1c8335 Merge pull request #32 from cat2151/copilot/remove-redundant-cycle-processing
 
 ### 変更されたファイル:
-.gitignore
+.vscode/settings.json
+README.ja.md
 README.md
-_codeql_detected_source_root
 build.py
-issue-notes/10.md
-issue-notes/6.md
-issue-notes/7.md
-issue-notes/8.md
-src/phase2/README.md
+issue-notes/33.md
+ruff.toml
+src/phase1/test_opm.c
 src/phase2/wav_output.c
-src/phase3/README.md
-src/phase3/miniaudio.h
 src/phase3/real_time_audio.c
-test_opm.c
+src/phase4/core.h
+src/phase4/events.h
+src/phase4/player.c
+src/phase4/types.h
+src/phase4/wav_writer.h
 
 
 ---
-Generated at: 2025-11-01 07:05:56 JST
+Generated at: 2025-11-02 07:05:30 JST

@@ -1,48 +1,62 @@
-Last updated: 2025-11-01
+Last updated: 2025-11-02
 
 # Development Status
 
 ## 現在のIssues
-現在オープンされているIssueはありません。
+- 現在オープン中のIssueはありません。
+- そのため、既存のIssueに基づく次の一手の候補は提示できません。
+- 新規のタスクや改善提案は、別途検討が必要です。
 
 ## 次の一手候補
-1. リアルタイムオーディオ機能の単体テスト計画と実装
-   - 最初の小さな一歩: `src/phase3/real_time_audio.c` の主要な関数 (`opm_init_real_time_audio`, `opm_play_real_time_audio`, `opm_stop_real_time_audio`) を抽出し、それらの単体テスト計画をMarkdown形式で記述する。
-   - Agent実行プロンプト:
-     ```
-     対象ファイル: `src/phase3/real_time_audio.c`, `test_opm.c`
+オープン中のIssueが存在しないため、「issue番号を必ず書く」という出力フォーマットの制約に対して、具体的なIssue番号を提示することができません。これは「ハルシネーションしそうなものは生成しない（例、新issueを勝手に妄想してそれをuserに提案する等）」という制約と衝突するためです。
 
-     実行内容: `src/phase3/real_time_audio.c` に存在する主要な関数（例: `opm_init_real_time_audio`, `opm_play_real_time_audio`, `opm_stop_real_time_audio`）を特定し、それらの単体テスト計画をMarkdown形式で作成してください。計画には、各関数のテスト対象、入力値の範囲、期待される出力、テスト環境のセットアップ要件を含めてください。
+このため、以下に提案する次の一手候補は、既存のIssueに紐付かない「新規の検討課題」として提示します。
 
-     確認事項: 既存の `test_opm.c` のテスト実装方法と整合性を取るようにしてください。MiniAudioライブラリに依存する部分のテストはモック化の可能性も考慮に入れてください。
+1.  [新課題] Cコードの静的解析導入と標準化
+    -   最初の小さな一歩: `clang-format`の設定ファイルを生成し、既存のCファイル(`opm.c`, `opm.h`等)に適用してフォーマットの差異を確認する。
+    -   Agent実行プロンプト:
+        ```
+        対象ファイル: `opm.c`, `opm.h`, `src/phase1/test_opm.c`, `src/phase2/wav_output.c`, `src/phase3/real_time_audio.c`, `src/phase4/player.c`, `src/phase4/core.h`, `src/phase4/events.h`, `src/phase4/types.h`, `src/phase4/wav_writer.h`
 
-     期待する出力: `src/phase3/real_time_audio.c` の主要関数に対する単体テスト計画を記述したMarkdownファイル（例: `docs/test_plans/real_time_audio_test_plan.md`）の提案。
-     ```
+        実行内容: C/C++用のコードフォーマッターである`clang-format`のデフォルト設定（または一般的なスタイルガイドに基づいた設定）を検討し、`.clang-format`ファイルを作成してください。その後、対象ファイルに対して`clang-format`を実行した場合の変更プレビュー（diff形式）を生成してください。
 
-2. 既存ドキュメントの最新化とMiniAudioライセンス情報の整備
-   - 最初の小さな一歩: `README.md` および `src/phase3/README.md` をレビューし、MiniAudioの利用方法とライセンス情報が不足なく、かつ正確に記述されているかを確認する。
-   - Agent実行プロンプト:
-     ```
-     対象ファイル: `README.md`, `src/phase3/README.md`, `src/phase3/miniaudio.h`
+        確認事項: 既存のコードベースに大きな破壊的変更が生じないか、またはチームの合意形成が必要なスタイル変更が含まれていないかを確認してください。また、CodeQLなどの既存の静的解析ツールとの連携可能性も考慮してください。
 
-     実行内容: `README.md` と `src/phase3/README.md` を分析し、`src/phase3/miniaudio.h` で示されているMiniAudioのデュアルライセンス（MIT/Public Domain）に関する情報が適切に記載されているか確認してください。また、リアルタイムオーディオ機能の基本的な利用方法が明確に記述されているかレビューし、不足している情報をMarkdown形式でリストアップしてください。
+        期待する出力:
+        1. `.clang-format`ファイルの提案内容。
+        2. 各対象ファイルへの`clang-format`適用時のdiff出力（markdownコードブロック形式）。
+        3. 提案されたフォーマットルールが既存のコードに与える影響についての簡単な考察。
+        ```
 
-     確認事項: MiniAudioのライセンス情報については、公式ドキュメントやヘッダーファイルの内容と一致していることを確認してください。
+2.  [新課題] ビルドプロセスのプラットフォーム非依存性向上
+    -   最初の小さな一歩: 現在の`build.py`スクリプトを分析し、主要なCソースファイル(`opm.c`, `src/phase4/player.c`など)とヘッダーファイル、コンパイルオプション、リンクするライブラリなどのビルド構成情報を洗い出す。
+    -   Agent実行プロンプト:
+        ```
+        対象ファイル: `build.py`, `opm.c`, `opm.h`, `src/phase1/test_opm.c`, `src/phase2/wav_output.c`, `src/phase3/real_time_audio.c`, `src/phase4/core.h`, `src/phase4/events.h`, `src/phase4/player.c`, `src/phase4/types.h`, `src/phase4/wav_writer.h`
 
-     期待する出力: 既存ドキュメントの改善提案として、追記すべきライセンス情報や利用方法の概要を記述したMarkdown形式のレポート。
-     ```
+        実行内容: `build.py`が現在行っているビルド処理を詳細に分析し、ビルドの対象となるソースファイル、ヘッダーの依存関係、必要なコンパイラフラグ、リンクされるライブラリ、および生成される出力ファイル（実行ファイルやライブラリ）を特定してください。その後、これらの情報を元に、クロスプラットフォームビルドシステムであるCMakeの`CMakeLists.txt`に記述するために必要な要素をmarkdown形式で整理してください。
 
-3. `opm.c` および `opm.h` の機能拡張性に関する検討
-   - 最初の小さな一歩: `opm.c`, `opm.h`, `src/phase2/wav_output.c`, `src/phase3/real_time_audio.c` を参照し、これらのファイル間の機能的な関連性、特に `opm` プレフィックスを持つ関数群の設計思想について簡単な分析レポートを作成する。
-   - Agent実行プロンプト:
-     ```
-     対象ファイル: `opm.c`, `opm.h`, `src/phase2/wav_output.c`, `src/phase3/real_time_audio.c`
+        確認事項: `build.py`が特定のOSや環境に依存する処理を行っていないか、また、`miniaudio.h`のような外部ライブラリの取り扱い方法を明確にしてください。
 
-     実行内容: `opm.c` と `opm.h` のAPIが、`src/phase2/wav_output.c` と `src/phase3/real_time_audio.c` で実装された機能との連携をどのようにサポートできるか、または改善できるかを分析してください。特に、将来的な機能拡張を見据えた現在のAPI設計の長所と短所について、考察をMarkdown形式で記述してください。
+        期待する出力:
+        1. `build.py`のビルドロジックの要約。
+        2. CMakeLists.txt作成に必要な要素（プロジェクト名、ソースファイル一覧、ヘッダーパス、ライブラリ依存関係、ビルドターゲットなど）を箇条書きで記述したmarkdown。
+        ```
 
-     確認事項: 各ファイルの役割と依存関係を明確に理解した上で分析を行ってください。既存の`opm_`プレフィックスを持つ関数の命名規則や抽象化レベルを考慮してください。
+3.  [新課題] GitHub Actionsワークフローの整理とドキュメント化
+    -   最初の小さな一歩: `.github/workflows`ディレクトリ内の`call-daily-project-summary.yml`, `call-issue-note.yml`, `call-translate-readme.yml`といった`call-*`ワークフローの呼び出し関係と、それらが呼び出すメインのワークフロー（例: `daily-project-summary.yml`, `issue-note.yml`, `translate-readme.yml`）を一覧化し、それぞれの目的を簡潔にまとめる。
+    -   Agent実行プロンプト:
+        ```
+        対象ファイル: `.github/workflows/*.yml`, `.github/actions-tmp/.github/workflows/*.yml`
 
-     期待する出力: `opm` APIと新規機能の連携に関する考察、および将来的な拡張性向上のための初期提案を記述したMarkdown形式のレポート。
+        実行内容: `.github/workflows`および`.github/actions-tmp/.github/workflows`ディレクトリ内の全てのYAMLファイルを分析し、特に`call-*`パターンを持つワークフロー（例: `call-daily-project-summary.yml`）とその呼び出し先のワークフロー（例: `daily-project-summary.yml`）間の依存関係、およびそれぞれのワークフローの主要な目的を特定してください。その後、これらのワークフローがプロジェクト全体のCI/CDパイプラインにおいてどのような役割を果たすか、概要をmarkdown形式で記述してください。
+
+        確認事項: ワークフロー間で共有される環境変数、入力パラメータ、および出力アーティファクトがある場合はそれらを特定し、その連携方法を明確にしてください。また、`.github/actions-tmp`配下のワークフローが本流とどのように異なるのか、その意図も考慮してください。
+
+        期待する出力:
+        1. 各`call-*`ワークフローとその呼び出し先ワークフローのペア、およびそれぞれの主要目的をまとめた表形式のmarkdown。
+        2. プロジェクトのCI/CDパイプライン全体における各ワークフローの役割と連携についての概要説明（markdown）。
+        3. `.github/actions-tmp`内のワークフローの役割（一時的、テスト用など）についての推測と説明。
 
 ---
-Generated at: 2025-11-01 07:06:37 JST
+Generated at: 2025-11-02 07:06:18 JST
