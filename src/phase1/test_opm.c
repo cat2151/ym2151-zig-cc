@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include "opm.h"
+#include "../../opm.h"
 
 // Sample rate and clock settings
 #define SAMPLE_RATE 44100

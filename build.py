@@ -60,11 +60,11 @@ def build_linux(use_zig=True):
         if not check_zig():
             return False
         
-        cmd = ["zig", "cc", "-o", "test_opm", "test_opm.c", "opm.c", "-lm", "-fwrapv"]
+        cmd = ["zig", "cc", "-o", "test_opm", "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
         if not run_command(cmd, "Building with zig cc"):
             return False
     else:
-        cmd = ["gcc", "-o", "test_opm", "test_opm.c", "opm.c", "-lm", "-fwrapv"]
+        cmd = ["gcc", "-o", "test_opm", "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
         if not run_command(cmd, "Building with gcc"):
             return False
     
@@ -86,9 +86,9 @@ def build_windows(cross_compile=False):
     
     if cross_compile:
         cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "test_opm.exe", 
-               "test_opm.c", "opm.c", "-lm", "-fwrapv"]
+               "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
     else:
-        cmd = ["zig", "cc", "-o", "test_opm.exe", "test_opm.c", "opm.c", "-lm", "-fwrapv"]
+        cmd = ["zig", "cc", "-o", "test_opm.exe", "src/phase1/test_opm.c", "opm.c", "-lm", "-fwrapv"]
     
     if not run_command(cmd, "Building with zig cc"):
         return False
