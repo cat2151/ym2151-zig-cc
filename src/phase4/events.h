@@ -36,7 +36,7 @@ void add_event_with_flag(RegisterEventList* list, uint32_t sample_time, uint8_t 
     list->count++;
 }
 
-// Add event to list (defaults to address write for pass1)
+// Add event to list (sets is_data_write=0, used by pass1 generation)
 void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data) {
     add_event_with_flag(list, sample_time, address, data, 0);
 }
@@ -183,15 +183,16 @@ RegisterEventList* generate_pass2_events(RegisterEventList* pass1) {
             last_time = event->sample_time;
         }
         
-        // Split each pass1 event into two pass2 events:
-        // 1. Address write at time T
-        //    Both address and data are stored for clarity in JSON output and to track the complete register write
+        // Split each pass1 event into two pass2 events with timing:
+        // Note: Both address and data are stored in each event for clarity in JSON output
+        // and to track the complete register write operation.
+        
+        // 1. Address register write at time T
         uint32_t addr_time = event->sample_time + accumulated_delay;
         add_event_with_flag(list, addr_time, event->address, event->data, 0);  // is_data_write = 0
         accumulated_delay += DELAY_SAMPLES;
         
-        // 2. Data write at time T + DELAY_SAMPLES
-        //    Both address and data are stored for clarity in JSON output and to track the complete register write
+        // 2. Data register write at time T + DELAY_SAMPLES
         uint32_t data_time = event->sample_time + accumulated_delay;
         add_event_with_flag(list, data_time, event->address, event->data, 1);  // is_data_write = 1
         accumulated_delay += DELAY_SAMPLES;
