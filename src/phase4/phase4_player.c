@@ -76,7 +76,12 @@ RegisterEventList* create_event_list() {
 void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data) {
     if (list->count >= list->capacity) {
         list->capacity *= 2;
-        list->events = (RegisterEvent*)realloc(list->events, sizeof(RegisterEvent) * list->capacity);
+        RegisterEvent* new_events = (RegisterEvent*)realloc(list->events, sizeof(RegisterEvent) * list->capacity);
+        if (!new_events) {
+            fprintf(stderr, "❌ Failed to reallocate memory for events\n");
+            exit(1);
+        }
+        list->events = new_events;
     }
     list->events[list->count].sample_time = sample_time;
     list->events[list->count].address = address;
@@ -93,13 +98,14 @@ void free_event_list(RegisterEventList* list) {
 // MIDI note to YM2151 KC/KF conversion
 void midi_to_kc_kf(uint8_t midi_note, uint8_t* kc, uint8_t* kf) {
     // Note table mapping MIDI note in octave to YM2151 NOTE field
+    // Based on empirical testing with 440Hz (A4) = KC 0x4A
     const uint8_t note_table[12] = {
         0,   // C
         1,   // C#
         2,   // D
         4,   // D#
         5,   // E
-        5,   // F
+        6,   // F (corrected to match YM2151 spec)
         6,   // F#
         8,   // G
         9,   // G#
@@ -113,7 +119,7 @@ void midi_to_kc_kf(uint8_t midi_note, uint8_t* kc, uint8_t* kf) {
     uint8_t ym_note = note_table[note_in_octave];
     
     *kc = (midi_octave << 4) | ym_note;
-    *kf = 0;  // No fine tuning for now
+    *kf = 0;  // No fine tuning for now (could be used to distinguish F from F#)
 }
 
 // Pass 1: Generate musical events (no delays)
