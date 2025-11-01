@@ -10,17 +10,15 @@
 #include "../../opm.h"
 
 // Sample rate and clock settings
-#define SAMPLE_RATE 44100
-#define OPM_CLOCK 3579545  // OPM clock frequency (3.579545 MHz)
-#define CYCLES_PER_SAMPLE 64  // Common value for OPM emulation
+#define OPM_CLOCK 3579545
+// #define OPM_CLOCK 4000000 // issue #22
+#define CYCLES_PER_SAMPLE 64
+#define SAMPLE_RATE (OPM_CLOCK / CYCLES_PER_SAMPLE)
+
 #define DURATION_SECONDS 3
 #define TOTAL_SAMPLES (SAMPLE_RATE * DURATION_SECONDS)
 #define NUM_CHANNELS 2  // Stereo
-
-// Delay calculations
-#define MS_TO_CYCLES(ms) ((OPM_CLOCK * (ms)) / 1000)
-#define INIT_DELAY_MS 100
-#define REGISTER_WRITE_DELAY_MS 10
+#define REGISTER_WRITE_DELAY_CYCLES 128
 
 // WAV file header structures
 typedef struct {
@@ -50,17 +48,14 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     // Write address
     OPM_Write(chip, 0, addr);
     
-    // Delay 10ms worth of cycles
-    uint32_t delay_cycles = MS_TO_CYCLES(REGISTER_WRITE_DELAY_MS);
-    for (uint32_t i = 0; i < delay_cycles; i++) {
+    for (uint32_t i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
         OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
     }
     
     // Write data
     OPM_Write(chip, 1, data);
     
-    // Delay 10ms worth of cycles
-    for (uint32_t i = 0; i < delay_cycles; i++) {
+    for (uint32_t i = 0; i < REGISTER_WRITE_DELAY_CYCLES; i++) {
         OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
     }
 }
@@ -82,7 +77,7 @@ void configure_440hz_tone(opm_t *chip) {
     write_register_with_delay(chip, 0x20 + channel, 0xC7, dummy_output);
     
     // Set frequency (440 Hz = A4)
-    // KC (Key Code) for A4 (440Hz): 0x4A
+    // KC (Key Code) for A4 (440Hz): 0x4A ※OPM_CLOCK 3579545 の場合のみ。違うときはKC/KFともに変更しないと違うピッチになる
     write_register_with_delay(chip, 0x28 + channel, 0x4A, dummy_output);
     
     // KF (Key Fraction)
