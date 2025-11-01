@@ -25,6 +25,7 @@ phase4_player.exe
 # Phase4 test artifacts
 phase4_pass1.json
 phase4_pass2.json
+security_check.sh
 
 # Distribution / packaging
 .Python
