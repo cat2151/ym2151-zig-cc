@@ -18,24 +18,6 @@ RegisterEventList* create_event_list() {
     return list;
 }
 
-// Add event to list
-void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data) {
-    if (list->count >= list->capacity) {
-        list->capacity *= 2;
-        RegisterEvent* new_events = (RegisterEvent*)realloc(list->events, sizeof(RegisterEvent) * list->capacity);
-        if (!new_events) {
-            fprintf(stderr, "❌ Failed to reallocate memory for events\n");
-            exit(1);
-        }
-        list->events = new_events;
-    }
-    list->events[list->count].sample_time = sample_time;
-    list->events[list->count].address = address;
-    list->events[list->count].data = data;
-    list->events[list->count].is_data_write = 0;  // Default to address write (for pass1)
-    list->count++;
-}
-
 // Add event to list with is_data_write flag
 void add_event_with_flag(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data, uint8_t is_data_write) {
     if (list->count >= list->capacity) {
@@ -52,6 +34,11 @@ void add_event_with_flag(RegisterEventList* list, uint32_t sample_time, uint8_t 
     list->events[list->count].data = data;
     list->events[list->count].is_data_write = is_data_write;
     list->count++;
+}
+
+// Add event to list (defaults to address write for pass1)
+void add_event(RegisterEventList* list, uint32_t sample_time, uint8_t address, uint8_t data) {
+    add_event_with_flag(list, sample_time, address, data, 0);
 }
 
 // Free event list
