@@ -63,7 +63,7 @@ void configure_440hz_tone(opm_t *chip) {
     write_register_with_delay(chip, 0x20 + channel, 0xC7, dummy_output);
     
     // Set frequency (440 Hz = A4)
-    // KC (Key Code) for A4 (440Hz): 0x4A
+    // KC (Key Code) for A4 (440Hz): 0x4A ※OPM_CLOCK 3579545 の場合のみ。違うときはKC/KFともに変更しないと違うピッチになる
     write_register_with_delay(chip, 0x28 + channel, 0x4A, dummy_output);
     
     // KF (Key Fraction)
