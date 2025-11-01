@@ -159,11 +159,11 @@ def build_phase3_windows(cross_compile=False):
     
     if cross_compile:
         cmd = ["zig", "cc", "-target", "x86_64-windows", "-o", "real_time_audio.exe",
-               "src/phase3/real_time_audio.c", "opm.c", "-lm", "-fwrapv"]
+               "src/phase3/real_time_audio.c", "opm.c", "-lm", "-fwrapv", "-O3"]
     else:
         cmd = ["zig", "cc", "-o", "real_time_audio.exe",
-               "src/phase3/real_time_audio.c", "opm.c", "-lm", "-fwrapv"]
-    
+               "src/phase3/real_time_audio.c", "opm.c", "-lm", "-fwrapv", "-O3"]
+
     if not run_command(cmd, "Building phase3 real-time audio with zig cc"):
         return False
     
