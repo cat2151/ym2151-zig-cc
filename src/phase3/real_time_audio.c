@@ -23,8 +23,10 @@
 #define DURATION_SECONDS 3
 #define REGISTER_WRITE_DELAY_CYCLES 128
 
-// Internal buffer size for resampler (enough for typical callback)
-#define INTERNAL_BUFFER_SIZE 2048
+// Internal buffer size for resampler
+// At 55930Hz internal rate and 48000Hz output rate, we need ~1.165x input frames
+// This buffer size supports output callbacks up to ~3500 frames
+#define INTERNAL_BUFFER_SIZE 4096
 
 // User data structure for MiniAudio callback
 typedef struct {
@@ -144,11 +146,12 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
     for (ma_uint64 i = 0; i < requiredInputFrames; i++) {
         // Check if we've played enough samples
         if (pContext->samples_played >= pContext->total_samples) {
-            // Fill remaining internal buffer with silence
+            // Fill remaining internal buffer with silence for smooth fadeout
             for (ma_uint64 j = i; j < requiredInputFrames; j++) {
                 pContext->internal_buffer[j * 2] = 0;
                 pContext->internal_buffer[j * 2 + 1] = 0;
             }
+            // We filled the entire buffer (audio + silence) so use all frames
             actualInputFrames = requiredInputFrames;
             pContext->is_playing = 0;
             break;
@@ -167,7 +170,11 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
         pContext->internal_buffer[i * 2 + 1] = (int16_t)(output[1] / 2);
         
         pContext->samples_played++;
-        actualInputFrames = i + 1;
+    }
+    
+    // If we didn't break early, we generated all required frames
+    if (actualInputFrames == 0) {
+        actualInputFrames = requiredInputFrames;
     }
     
     // Resample from internal rate to output rate
