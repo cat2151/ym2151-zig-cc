@@ -16,10 +16,10 @@ void process_events_until(AudioContext* ctx, uint32_t current_sample) {
         // The timing is already calculated in pass2, so no cycle consumption here
         if (event->is_data_write) {
             // Data register write
-            OPM_Write(&ctx->chip, 1, event->data);
+            OPM_Write(&ctx->chip, OPM_DATA_REGISTER, event->data);
         } else {
             // Address register write
-            OPM_Write(&ctx->chip, 0, event->address);
+            OPM_Write(&ctx->chip, OPM_ADDRESS_REGISTER, event->address);
         }
         
         ctx->next_event_index++;

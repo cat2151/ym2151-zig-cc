@@ -22,15 +22,22 @@
 #define REGISTER_WRITE_DELAY_CYCLES 128
 #define DELAY_SAMPLES ((REGISTER_WRITE_DELAY_CYCLES) / (CYCLES_PER_SAMPLE))  // 2 samples
 
+// OPM register port numbers for OPM_Write()
+#define OPM_ADDRESS_REGISTER 0
+#define OPM_DATA_REGISTER 1
+
 // Internal buffer size for resampler
 #define INTERNAL_BUFFER_SIZE 4096
 
 // Register write event structure
+// Note: Both address and data are stored in each event for simplicity and clarity in JSON output.
+// For address write events (is_data_write=0), the 'data' field shows what data will be written in the subsequent data event.
+// For data write events (is_data_write=1), the 'address' field shows which register the data is being written to.
 typedef struct {
     uint32_t sample_time;  // Time in samples from start (not delta)
-    uint8_t address;
-    uint8_t data;
-    uint8_t is_data_write;  // 0 = address write, 1 = data write (for pass2 only)
+    uint8_t address;       // YM2151 register address
+    uint8_t data;          // Data to write to the register
+    uint8_t is_data_write; // 0 = address register write, 1 = data register write (for pass2 only)
 } RegisterEvent;
 
 // Dynamic array for register events

@@ -185,11 +185,13 @@ RegisterEventList* generate_pass2_events(RegisterEventList* pass1) {
         
         // Split each pass1 event into two pass2 events:
         // 1. Address write at time T
+        //    Both address and data are stored for clarity in JSON output and to track the complete register write
         uint32_t addr_time = event->sample_time + accumulated_delay;
         add_event_with_flag(list, addr_time, event->address, event->data, 0);  // is_data_write = 0
         accumulated_delay += DELAY_SAMPLES;
         
         // 2. Data write at time T + DELAY_SAMPLES
+        //    Both address and data are stored for clarity in JSON output and to track the complete register write
         uint32_t data_time = event->sample_time + accumulated_delay;
         add_event_with_flag(list, data_time, event->address, event->data, 1);  // is_data_write = 1
         accumulated_delay += DELAY_SAMPLES;
