@@ -66,9 +66,18 @@ uint32_t duration_to_samples(double duration_seconds) {
 // Initialize register event list
 RegisterEventList* create_event_list() {
     RegisterEventList* list = (RegisterEventList*)malloc(sizeof(RegisterEventList));
+    if (!list) {
+        fprintf(stderr, "❌ Failed to allocate memory for event list\n");
+        exit(1);
+    }
     list->capacity = 256;
     list->count = 0;
     list->events = (RegisterEvent*)malloc(sizeof(RegisterEvent) * list->capacity);
+    if (!list->events) {
+        fprintf(stderr, "❌ Failed to allocate memory for events array\n");
+        free(list);
+        exit(1);
+    }
     return list;
 }
 
