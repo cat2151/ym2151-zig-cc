@@ -19,9 +19,8 @@
 #define DURATION_SECONDS 3
 
 // Delay calculations
-#define MS_TO_CYCLES(ms) ((OPM_CLOCK * (ms)) / 1000)
-#define INIT_DELAY_MS 100
-#define REGISTER_WRITE_DELAY_MS 10
+#define US_TO_CYCLES(us) ((OPM_CLOCK * (us)) / 1000000)
+#define REGISTER_WRITE_DELAY_US 10
 
 // User data structure for MiniAudio callback
 typedef struct {
@@ -36,8 +35,8 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     // Write address
     OPM_Write(chip, 0, addr);
     
-    // Delay 10ms worth of cycles
-    uint32_t delay_cycles = MS_TO_CYCLES(REGISTER_WRITE_DELAY_MS);
+    // Delay 10us worth of cycles
+    uint32_t delay_cycles = US_TO_CYCLES(REGISTER_WRITE_DELAY_US);
     for (uint32_t i = 0; i < delay_cycles; i++) {
         OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
     }
@@ -45,7 +44,7 @@ void write_register_with_delay(opm_t *chip, uint8_t addr, uint8_t data, int32_t 
     // Write data
     OPM_Write(chip, 1, data);
     
-    // Delay 10ms worth of cycles
+    // Delay 10us worth of cycles
     for (uint32_t i = 0; i < delay_cycles; i++) {
         OPM_Clock(chip, dummy_output, NULL, NULL, NULL);
     }
