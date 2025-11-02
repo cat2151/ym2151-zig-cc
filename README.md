@@ -14,7 +14,7 @@ A project to build a simple sequencer using Nuked-OPM with zig cc
 
 ## Overview
 
-This project is an experimental C language program that plays simple sounds using Nuked-OPM (a Yamaha YM2151 emulator). It uses zig cc for building.
+This project is an experimental C language program that uses Nuked-OPM (Yamaha YM2151 emulator) to play simple sounds. It uses zig cc for building.
 
 ## Features
 
@@ -23,8 +23,8 @@ This project is an experimental C language program that plays simple sounds usin
 - ✅ WAV file output functionality (src/phase2/)
 - ✅ Real-time audio playback functionality (src/phase3/)
 - ✅ Simple sequencer functionality (src/phase4/)
-- ✅ Provides an easy way to experience YM2151 sounds on Windows
-- ✅ Simple code that may be easy to reference
+- ✅ Provides an easy experience to play YM2151 sounds on Windows
+- ✅ Simple codebase that may serve as a good reference
 
 ## Build
 
@@ -34,19 +34,19 @@ python build.py build-phase4 && ./player.exe
 
 ## Maintenance
 
-- If it stops working, I intend to prioritize restoring it to a playable state.
+- If playback stops working, I intend to prioritize restoring it to a functional state.
 
-## Future Prospects
+## Future Outlook
 
-- If there are obvious flaws in the code, comments, or documentation, I will consider making corrections.
+- If there are any clear deficiencies in the code, comments, or documentation, I will consider corrections.
 
 ## Out of Scope
 
-This project prioritizes code simplicity, so the following features that would complicate the code are out of scope:
+This project prioritizes code simplicity. Therefore, features that would complicate the code, such as the following, are out of scope:
 
-- Any feature additions that complicate the code, such as improving versatility for direct library referencing.
+- Any feature additions that increase code complexity, such as improving versatility for direct use of source files as a library.
 - Interactive performance
-- Reproduction of clock and timing as if played on an X680x0
+- Reproduction of clock and timing as if played on X680x0
 - Reproduction of existing songs
 
 ## License
@@ -55,4 +55,4 @@ This project prioritizes code simplicity, so the following features that would c
 - Nuked-OPM: LGPL 2.1
 - MiniAudio: Public Domain OR MIT-0 (dual license)
 
-※ The English README.md is automatically generated from README.ja.md using Gemini's translation via GitHub Actions.
+※The English README.md is automatically generated from README.ja.md using Gemini's translation via GitHub Actions.
