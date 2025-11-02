@@ -1,6 +1,6 @@
 # ym2151-zig-cc
 
-A project to build a simple sequencer using Nuked-OPM with zig cc
+A project for building a simple sequencer leveraging Nuked-OPM with zig cc.
 
 <p align="left">
   <a href="README.ja.md"><img src="https://img.shields.io/badge/🇯🇵-Japanese-red.svg" alt="Japanese"></a>
@@ -14,17 +14,17 @@ A project to build a simple sequencer using Nuked-OPM with zig cc
 
 ## Overview
 
-This project is an experimental C language program that uses Nuked-OPM (Yamaha YM2151 emulator) to play simple sounds. It uses zig cc for building.
+This project is an experimental C language program that plays simple sounds using Nuked-OPM (a Yamaha YM2151 emulator). It uses zig cc for building.
 
 ## Features
 
 - ✅ Accurate YM2151 emulation using the Nuked-OPM library
-- ✅ Windows build using zig cc
+- ✅ Windows builds using zig cc
 - ✅ WAV file output functionality (src/phase2/)
 - ✅ Real-time audio playback functionality (src/phase3/)
 - ✅ Simple sequencer functionality (src/phase4/)
-- ✅ Provides an easy experience to play YM2151 sounds on Windows
-- ✅ Simple codebase that may serve as a good reference
+- ✅ Provides an easy way to experience YM2151 sounds on Windows
+- ✅ Simple and easy-to-reference code (perhaps)
 
 ## Build
 
@@ -32,22 +32,29 @@ This project is an experimental C language program that uses Nuked-OPM (Yamaha Y
 python build.py build-phase4 && ./player.exe
 ```
 
+## Target Platforms
+
+Windows
+
+Linux is not officially tested. Voluntary Linux implementations and tests by contributors are tolerated from an overall project optimization perspective.
+
 ## Maintenance
 
-- If playback stops working, I intend to prioritize restoring it to a functional state.
+- If the project stops producing sound, I intend to prioritize restoring it to a playable state as quickly as possible.
 
 ## Future Outlook
 
-- If there are any clear deficiencies in the code, comments, or documentation, I will consider corrections.
+- If there are clear deficiencies in the code, comments, or documentation, I will consider making corrections.
 
 ## Out of Scope
 
-This project prioritizes code simplicity. Therefore, features that would complicate the code, such as the following, are out of scope:
+To prioritize code simplicity, this project explicitly excludes the following features, which would complicate the codebase:
 
-- Any feature additions that increase code complexity, such as improving versatility for direct use of source files as a library.
-- Interactive performance
-- Reproduction of clock and timing as if played on X680x0
-- Reproduction of existing songs
+- Active Linux support by users or other multi-platform compatibility.
+- Enhancements for general usability, such as directly utilizing source files as a library, or any other feature additions that would complicate the code.
+- Interactive performance.
+- Reproduction of clock and timing as if performed on an X680x0.
+- Reproduction of existing songs.
 
 ## License
 
@@ -55,4 +62,4 @@ This project prioritizes code simplicity. Therefore, features that would complic
 - Nuked-OPM: LGPL 2.1
 - MiniAudio: Public Domain OR MIT-0 (dual license)
 
-※The English README.md is automatically generated from README.ja.md using Gemini's translation via GitHub Actions.
+*The English README.md is automatically generated from README.ja.md by GitHub Actions using Gemini's translation.*
