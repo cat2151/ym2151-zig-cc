@@ -1,4 +1,4 @@
-Last updated: 2025-11-02
+Last updated: 2025-11-03
 
 # 開発状況生成プロンプト（開発者向け）
 
@@ -235,33 +235,21 @@ Last updated: 2025-11-02
 
 ## 最近の変更（過去7日間）
 ### コミット履歴:
+8f4a97b Auto-translate README.ja.md to README.md [auto]
+764a8c4 Update README with platform details and scope exclusions
+78e4a3a Auto-translate README.ja.md to README.md [auto]
+ccb6f2a Fix wording for library usage in README.ja.md
+a9e11eb Auto-translate README.ja.md to README.md [auto]
+86ffd47 Add maintenance section to README.ja.md
+ce5fbc4 Auto-translate README.ja.md to README.md [auto]
+a4575b4 Update README.ja.md with future prospects section
+c8f2817 Update project summaries (overview & development status) [auto]
 74b5e6c Auto-translate README.ja.md to README.md [auto]
-a436b83 Merge branch 'main' of github.com:cat2151/ym2151-zig-cc into main
-f3e9236 ビルド手順を追記
-5b646f6 Auto-translate README.ja.md to README.md [auto]
-8d8b928 他project同様改善
-6abb141 fix #33
-be32d05 Add issue note for #33 [auto]
-7115139 Auto-translate README.ja.md to README.md [auto]
-bd0aceb 状況を反映
-f1c8335 Merge pull request #32 from cat2151/copilot/remove-redundant-cycle-processing
 
 ### 変更されたファイル:
-.vscode/settings.json
 README.ja.md
 README.md
-build.py
-issue-notes/33.md
-ruff.toml
-src/phase1/test_opm.c
-src/phase2/wav_output.c
-src/phase3/real_time_audio.c
-src/phase4/core.h
-src/phase4/events.h
-src/phase4/player.c
-src/phase4/types.h
-src/phase4/wav_writer.h
 
 
 ---
-Generated at: 2025-11-02 07:05:30 JST
+Generated at: 2025-11-03 07:05:40 JST

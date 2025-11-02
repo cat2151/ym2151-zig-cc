@@ -1,62 +1,48 @@
-Last updated: 2025-11-02
+Last updated: 2025-11-03
 
 # Development Status
 
 ## 現在のIssues
-- 現在オープン中のIssueはありません。
-- そのため、既存のIssueに基づく次の一手の候補は提示できません。
-- 新規のタスクや改善提案は、別途検討が必要です。
+オープン中のIssueはありません。
 
 ## 次の一手候補
-オープン中のIssueが存在しないため、「issue番号を必ず書く」という出力フォーマットの制約に対して、具体的なIssue番号を提示することができません。これは「ハルシネーションしそうなものは生成しない（例、新issueを勝手に妄想してそれをuserに提案する等）」という制約と衝突するためです。
-
-このため、以下に提案する次の一手候補は、既存のIssueに紐付かない「新規の検討課題」として提示します。
-
-1.  [新課題] Cコードの静的解析導入と標準化
-    -   最初の小さな一歩: `clang-format`の設定ファイルを生成し、既存のCファイル(`opm.c`, `opm.h`等)に適用してフォーマットの差異を確認する。
-    -   Agent実行プロンプト:
+1.  OPM音源の新しい音色パラメータを追加する [Issue #100](../issue-notes/100.md)
+    -   最初の小さな一歩: `opm.c`に新しい波形やエンベロープ設定を定義するための構造体メンバーを追加する。
+    -   Agent実行プロンプ:
         ```
-        対象ファイル: `opm.c`, `opm.h`, `src/phase1/test_opm.c`, `src/phase2/wav_output.c`, `src/phase3/real_time_audio.c`, `src/phase4/player.c`, `src/phase4/core.h`, `src/phase4/events.h`, `src/phase4/types.h`, `src/phase4/wav_writer.h`
+        対象ファイル: `opm.c`, `opm.h`, `src/phase1/test_opm.c`
 
-        実行内容: C/C++用のコードフォーマッターである`clang-format`のデフォルト設定（または一般的なスタイルガイドに基づいた設定）を検討し、`.clang-format`ファイルを作成してください。その後、対象ファイルに対して`clang-format`を実行した場合の変更プレビュー（diff形式）を生成してください。
+        実行内容: `opm.c`と`opm.h`の既存のOPM音源構造を分析し、新しい音色パラメータ（例: 追加のオペレータ設定、変調タイプ）を安全に追加できる拡張ポイントを特定してください。その後、その新しいパラメータを初期化し、既存の音源生成ロジックに組み込むための最小限のコード変更案を提案してください。
 
-        確認事項: 既存のコードベースに大きな破壊的変更が生じないか、またはチームの合意形成が必要なスタイル変更が含まれていないかを確認してください。また、CodeQLなどの既存の静的解析ツールとの連携可能性も考慮してください。
+        確認事項: 既存のデータ構造や関数シグネチャとの互換性、および`src/phase1/test_opm.c`でのテストのしやすさを確認してください。
 
-        期待する出力:
-        1. `.clang-format`ファイルの提案内容。
-        2. 各対象ファイルへの`clang-format`適用時のdiff出力（markdownコードブロック形式）。
-        3. 提案されたフォーマットルールが既存のコードに与える影響についての簡単な考察。
+        期待する出力: 新しい音色パラメータを追加するための`opm.h`と`opm.c`へのコード変更案をMarkdown形式で出力し、その変更が既存の機能に与える影響について説明してください。
         ```
 
-2.  [新課題] ビルドプロセスのプラットフォーム非依存性向上
-    -   最初の小さな一歩: 現在の`build.py`スクリプトを分析し、主要なCソースファイル(`opm.c`, `src/phase4/player.c`など)とヘッダーファイル、コンパイルオプション、リンクするライブラリなどのビルド構成情報を洗い出す。
-    -   Agent実行プロンプト:
+2.  `opm.c`のユニットテストをGitHub Actionsで自動化する [Issue #101](../issue-notes/101.md)
+    -   最初の小さな一歩: `src/phase1/test_opm.c`をコンパイルし実行するための最小限のGitHub Actionsワークフローを作成する。
+    -   Agent実行プロンプ:
         ```
-        対象ファイル: `build.py`, `opm.c`, `opm.h`, `src/phase1/test_opm.c`, `src/phase2/wav_output.c`, `src/phase3/real_time_audio.c`, `src/phase4/core.h`, `src/phase4/events.h`, `src/phase4/player.c`, `src/phase4/types.h`, `src/phase4/wav_writer.h`
+        対象ファイル: `.github/workflows/`ディレクトリ内の既存のワークフローファイル, `src/phase1/test_opm.c`, `opm.c`, `opm.h`
 
-        実行内容: `build.py`が現在行っているビルド処理を詳細に分析し、ビルドの対象となるソースファイル、ヘッダーの依存関係、必要なコンパイラフラグ、リンクされるライブラリ、および生成される出力ファイル（実行ファイルやライブラリ）を特定してください。その後、これらの情報を元に、クロスプラットフォームビルドシステムであるCMakeの`CMakeLists.txt`に記述するために必要な要素をmarkdown形式で整理してください。
+        実行内容: `src/phase1/test_opm.c`が`opm.c`と`opm.h`に依存していることを考慮し、GitHub ActionsでC言語プロジェクトをビルド・テストする一般的な方法を調査してください。その後、`test_opm.c`をコンパイルし、実行する新しいGitHub Actionsワークフローファイル（例: `.github/workflows/test-opm.yml`）を作成する手順と内容を記述してください。
 
-        確認事項: `build.py`が特定のOSや環境に依存する処理を行っていないか、また、`miniaudio.h`のような外部ライブラリの取り扱い方法を明確にしてください。
+        確認事項: ビルド環境（例: GCCのバージョン）の指定、テストの成功/失敗を適切にレポートする方法、および既存のCI/CDワークフローとの競合がないことを確認してください。
 
-        期待する出力:
-        1. `build.py`のビルドロジックの要約。
-        2. CMakeLists.txt作成に必要な要素（プロジェクト名、ソースファイル一覧、ヘッダーパス、ライブラリ依存関係、ビルドターゲットなど）を箇条書きで記述したmarkdown。
+        期待する出力: `test-opm.yml`のYAMLコード例と、そのワークフローの導入手順をMarkdown形式で生成してください。
         ```
 
-3.  [新課題] GitHub Actionsワークフローの整理とドキュメント化
-    -   最初の小さな一歩: `.github/workflows`ディレクトリ内の`call-daily-project-summary.yml`, `call-issue-note.yml`, `call-translate-readme.yml`といった`call-*`ワークフローの呼び出し関係と、それらが呼び出すメインのワークフロー（例: `daily-project-summary.yml`, `issue-note.yml`, `translate-readme.yml`）を一覧化し、それぞれの目的を簡潔にまとめる。
-    -   Agent実行プロンプト:
+3.  OPM音源の出力をリアルタイムオーディオ再生に繋ぎ込む [Issue #102](../issue-notes/102.md)
+    -   最初の小さな一歩: `src/phase3/real_time_audio.c`内のオーディオコールバック関数で、`opm.c`から生成された短いサンプルを再生するよう修正する。
+    -   Agent実行プロンプ:
         ```
-        対象ファイル: `.github/workflows/*.yml`, `.github/actions-tmp/.github/workflows/*.yml`
+        対象ファイル: `opm.c`, `opm.h`, `src/phase3/real_time_audio.c`, `src/phase3/miniaudio.h`
 
-        実行内容: `.github/workflows`および`.github/actions-tmp/.github/workflows`ディレクトリ内の全てのYAMLファイルを分析し、特に`call-*`パターンを持つワークフロー（例: `call-daily-project-summary.yml`）とその呼び出し先のワークフロー（例: `daily-project-summary.yml`）間の依存関係、およびそれぞれのワークフローの主要な目的を特定してください。その後、これらのワークフローがプロジェクト全体のCI/CDパイプラインにおいてどのような役割を果たすか、概要をmarkdown形式で記述してください。
+        実行内容: `opm.c`からオーディオサンプルを生成する方法と、`src/phase3/real_time_audio.c`が`miniaudio.h`を使用してどのようにリアルタイム再生を行っているかを分析してください。その後、`opm.c`で生成されたサウンドデータを`src/phase3/real_time_audio.c`のオーディオ再生ループに供給するための、初期的な結合方法を提案してください。
 
-        確認事項: ワークフロー間で共有される環境変数、入力パラメータ、および出力アーティファクトがある場合はそれらを特定し、その連携方法を明確にしてください。また、`.github/actions-tmp`配下のワークフローが本流とどのように異なるのか、その意図も考慮してください。
+        確認事項: OPM音源のサンプルレートと`miniaudio`の再生レートの整合性、バッファリングの考慮事項、および既存のオーディオ再生処理に大きな変更を加えないで統合できるかを確認してください。
 
-        期待する出力:
-        1. 各`call-*`ワークフローとその呼び出し先ワークフローのペア、およびそれぞれの主要目的をまとめた表形式のmarkdown。
-        2. プロジェクトのCI/CDパイプライン全体における各ワークフローの役割と連携についての概要説明（markdown）。
-        3. `.github/actions-tmp`内のワークフローの役割（一時的、テスト用など）についての推測と説明。
+        期待する出力: OPM音源とリアルタイムオーディオ再生を統合するための、`src/phase3/real_time_audio.c`への具体的なコード変更の提案と、関連する`opm.c`の変更点の概要をMarkdown形式で出力してください。
 
 ---
-Generated at: 2025-11-02 07:06:18 JST
+Generated at: 2025-11-03 07:05:56 JST
