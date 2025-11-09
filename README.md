@@ -12,6 +12,12 @@ A project for building a simple sequencer leveraging Nuked-OPM with zig cc.
 |------|--------|
 | 📊 Development Status | [generated-docs/development-status](generated-docs/development-status.md) |
 
+## 状況
+
+アーカイブします。後継のRust版を開発します。
+
+このリポジトリの用途は、C言語による最小限のコードを提供する用です。
+
 ## Overview
 
 This project is an experimental C language program that plays simple sounds using Nuked-OPM (a Yamaha YM2151 emulator). It uses zig cc for building.
